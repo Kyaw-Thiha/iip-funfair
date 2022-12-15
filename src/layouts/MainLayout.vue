@@ -27,11 +27,11 @@
 
         <div v-if="!isLoggedIn()">
           <q-btn
-            label="Sign In"
+            label="Sign Up"
             color="primary"
             :size="screen.lt.md ? 'md' : 'lg'"
             :ripple="{ early: true }"
-            :to="{ name: 'sign-in' }"
+            :to="{ name: 'sign-up' }"
           />
         </div>
         <div v-else>
