@@ -194,7 +194,6 @@ export default defineComponent({
 
     const deleteImage = async () => {
       await deleteImg('iip-funfair-shop', product.image_internal);
-      console.log(product);
 
       const { data, error } = await supabase
         .from('product')
@@ -241,15 +240,6 @@ export default defineComponent({
 
         router.push({ name: 'my-shop' });
       } else {
-        console.log(product);
-        console.log(product.name != '');
-        console.log(product.name_abbreviation != '');
-        console.log(product.description != '');
-        console.log(product.product_type != '');
-        console.log(product.sales_date != '');
-        console.log(product.price != 0);
-        console.log(imageFile.value != null);
-
         $q.notify({
           message: 'Data is incomplete',
           caption: 'Fill up all the fields in the form',

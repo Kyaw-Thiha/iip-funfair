@@ -77,10 +77,10 @@ export default defineComponent({
     const $q = useQuasar();
     const { post } = useApi();
 
-    const email = ref('k.thiha10.2.mail@gmail.com');
-    const password = ref('1234567');
-    const name = ref('Human');
-    const className = ref('Section E');
+    const email = ref('');
+    const password = ref('');
+    const name = ref('');
+    const className = ref('');
 
     const classes = reactive([
       'A Level',
@@ -123,8 +123,6 @@ export default defineComponent({
 
         router.push({ name: 'home' });
       }
-
-      console.log(user);
 
       //router.push({ name: 'home' });
     };

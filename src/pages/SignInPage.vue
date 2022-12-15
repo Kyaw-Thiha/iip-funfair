@@ -58,8 +58,8 @@ export default defineComponent({
     const $q = useQuasar();
     const { supabase } = useSupabase();
 
-    const email = ref('k.thiha10.2.mail@gmail.com');
-    const password = ref('1234567');
+    const email = ref('');
+    const password = ref('');
 
     const router = useRouter();
     const confirm = async () => {

@@ -140,7 +140,6 @@ export default defineComponent({
     });
 
     const fetchProduct = async (shopID) => {
-      console.log(shopID);
       //Fetching the shop
       const shop = await getById(
         'shop',

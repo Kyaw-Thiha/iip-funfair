@@ -129,7 +129,6 @@ export default defineComponent({
         'tickets:ticket(product,user,status)'
       );
       const tickets = products[0].tickets;
-      console.log(products);
       for (const ticket of tickets) {
         const user = await getById('users', ticket.user, 'name,class');
 
