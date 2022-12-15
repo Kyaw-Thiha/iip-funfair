@@ -1,7 +1,7 @@
 <template>
   <div class="q-mb-xl">
     <h2 class="text-center text-primary">Tickets</h2>
-    <section class="q-mb-xl">
+    <section v-if="unpaidTickets.length > 0" class="q-mb-xl">
       <ticket-list
         title="Unpaid"
         btnLabel="Pay"
@@ -12,6 +12,7 @@
 
     <section>
       <ticket-list
+        v-if="paidTickets.length > 0"
         title="Paid"
         btnLabel="Use"
         :tickets="paidTickets"
@@ -20,7 +21,26 @@
     </section>
 
     <section>
-      <ticket-list title="Used" btnLabel="" :tickets="usedTickets" />
+      <ticket-list
+        v-if="usedTickets.length > 0"
+        title="Used"
+        btnLabel=""
+        :tickets="usedTickets"
+      />
+    </section>
+
+    <section v-if="noTickets">
+      <div class="full-screen row justify-evenly">
+        <div>
+          <h5 class="col-12 text-center">
+            Hmm...Looks like you havn't bought any ticket yet
+          </h5>
+
+          <div class="col-12 text-center">
+            <h6>Buy tickets and they will show up here :)</h6>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Dialogs for the unpaid tickets -->
@@ -30,9 +50,9 @@
       :key="ticket.id"
       v-model="ticket.openDialog"
     >
-      <h6 class="q-mt-sm">
+      <!-- <h6 class="q-mt-sm">
         Pay the ticket to {{ getMembers(ticket.members) }}
-      </h6>
+      </h6> -->
       <h6 class="q-mt-sm q-mb-lg">
         Let them scan this QR code to validate the payment.
       </h6>
@@ -61,97 +81,114 @@
 </template>
 
 <script>
-import { defineComponent, reactive } from 'vue';
+import { defineComponent, reactive, ref, onMounted } from 'vue';
 import QrcodeVue from 'qrcode.vue';
+
 import TicketList from 'src/components/TicketList.vue';
-import confirmDialog from 'components/ConfirmDialog.vue';
+import confirmDialog from 'src/components/ConfirmDialog.vue';
+
+import useApi from 'src/composables/useApi';
+import useAuthUser from 'src/composables/useAuthUser';
 
 export default defineComponent({
   name: 'PurchasedTicketsPage',
   components: { QrcodeVue, TicketList, confirmDialog },
   setup() {
-    const testMembers = [
-      {
-        name: 'Kevin',
-        class: 'A Level',
-      },
-      {
-        name: 'Sai Sai',
-        class: 'A Level',
-      },
-      {
-        name: 'Hnin Oo',
-        class: 'A Level',
-      },
-      {
-        name: 'Yadanar',
-        class: 'A Level',
-      },
-    ];
-    const unpaidTickets = reactive([
-      {
-        name: 'Good Foods',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'ALVL-HFS-30078',
-        members: testMembers,
-        openDialog: false,
-      },
-      {
-        name: 'Good Foods',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'ALVL-HFS-30382',
-        members: testMembers,
-        openDialog: false,
-      },
-      {
-        name: 'Good Foods',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'ALVL-HFS-37812',
-        members: testMembers,
-        openDialog: false,
-      },
-    ]);
+    const { filterByProperties, getById } = useApi();
+    const { user } = useAuthUser();
 
-    const paidTickets = reactive([
-      {
-        name: 'Good Foods',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'ALVL-HFS-30079',
-        members: testMembers,
-        openDialog: false,
-      },
-      {
-        name: 'Good Foods',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'ALVL-HFS-30383',
-        members: testMembers,
-        openDialog: false,
-      },
-      {
-        name: 'Good Foods',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'ALVL-HFS-37813',
-        members: testMembers,
-        openDialog: false,
-      },
-    ]);
+    const noTickets = ref(false);
 
-    const usedTickets = reactive([
-      {
-        name: 'Good Foods',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'ALVL-HFS-37813',
-        members: testMembers,
-        openDialog: false,
-      },
-    ]);
+    const fetchTickets = async () => {
+      //Fetching unpaid tickets
+      const unpaid = await filterByProperties('ticket', {
+        user: user.value.id,
+        status: 'not-paid',
+      });
+      unpaid.forEach(async (ticket) => {
+        const product = await getById('product', ticket.product, 'image,name');
+        ticket.id = ticket.reference_no;
+        ticket.name = product.name;
+        ticket.image = product.image;
+        ticket.openDialog = false;
+
+        unpaidTickets.push(ticket);
+      });
+
+      //Fetching paid tickets
+      const paid = await filterByProperties('ticket', {
+        user: user.value.id,
+        status: 'paid',
+      });
+      paid.forEach(async (ticket) => {
+        const product = await getById('product', ticket.product, 'image');
+        ticket.id = ticket.reference_no;
+        ticket.image = product.image;
+        ticket.openDialog = false;
+
+        paidTickets.push(ticket);
+      });
+
+      //Fetching used tickets
+      const used = await filterByProperties('ticket', {
+        user: user.value.id,
+        status: 'used',
+      });
+      used.forEach(async (ticket) => {
+        const product = await getById('product', ticket.product, 'image');
+        ticket.id = ticket.reference_no;
+        ticket.image = product.image;
+        ticket.openDialog = false;
+
+        usedTickets.push(ticket);
+      });
+
+      if (
+        unpaidTickets.length <= 0 &&
+        paidTickets.length <= 0 &&
+        usedTickets.length <= 0
+      ) {
+        noTickets.value = true;
+      }
+    };
+
+    onMounted(() => {
+      fetchTickets();
+    });
+
+    const unpaidTickets = reactive([]);
+    const paidTickets = reactive([]);
+    const usedTickets = reactive([]);
+
+    // const isMembersFetching = ref(true);
+    // const fetchMembers = async (product) => {
+    //   isMembersFetching.value = true;
+
+    //   const shop = await getById(
+    //     'shop',
+    //     product.shop,
+    //     'members:shop_member(*)'
+    //   );
+    //   product.members = [];
+
+    //   for (var i = 0; i < shop.members.length; i++) {
+    //     const fetchedUser = await getById(
+    //       'users',
+    //       shop.members[i].user,
+    //       'id,image,name'
+    //     );
+
+    //     product.members.push(fetchedUser);
+    //     if (fetchedUser.image == undefined || fetchedUser.image == '') {
+    //       //Adding in the image path if image is not set
+    //       product.members[
+    //         i
+    //       ].image = `https://avatars.dicebear.com/api/micah/${fetchedUser.id}.svg`;
+    //     }
+    //   }
+
+    //   isMembersFetching.value = false;
+    // };
 
     const openUnpaidDialog = (index) => {
       unpaidTickets[index].openDialog = true;
@@ -180,13 +217,15 @@ export default defineComponent({
     };
 
     return {
+      noTickets,
       unpaidTickets,
       paidTickets,
       usedTickets,
       openUnpaidDialog,
       openPaidDialog,
-
-      getMembers,
+      //fetchMembers,
+      //isMembersFetching,
+      //getMembers,
     };
   },
 });

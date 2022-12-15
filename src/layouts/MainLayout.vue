@@ -25,7 +25,7 @@
           </q-btn>
         </q-toolbar-title>
 
-        <div v-if="!isLoggedIn">
+        <div v-if="!isLoggedIn()">
           <q-btn
             label="Sign In"
             color="primary"
@@ -64,6 +64,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useQuasar } from 'quasar';
+import useAuthUser from 'src/composables/useAuthUser';
 
 export default defineComponent({
   name: 'MainLayout',
@@ -72,7 +73,9 @@ export default defineComponent({
     const $q = useQuasar();
     const screen = $q.screen;
 
-    const isLoggedIn = ref(true);
+    const { isLoggedIn } = useAuthUser();
+
+    //const isLoggedIn = ref(true);
 
     return {
       screen,

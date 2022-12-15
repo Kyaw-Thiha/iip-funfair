@@ -62,7 +62,11 @@ module.exports = configure(function (/* ctx */) {
 
       publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        SUPABASE_URL: 'https://apqjoqrlhscgrmhqoctv.supabase.co',
+        SUPABASE_KEY:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwcWpvcXJsaHNjZ3JtaHFvY3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzA5MTM4NjAsImV4cCI6MTk4NjQ4OTg2MH0.0ZjyCbMDe4YdCUpDwsqIEhctNrlFXH5PKEctmK5RhHE',
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,

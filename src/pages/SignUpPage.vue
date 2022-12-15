@@ -44,39 +44,92 @@
           @click="confirm"
         />
       </div>
+
+      <div>
+        <div class="text-center q-mt-lg">
+          <q-btn
+            class="confirm-btn"
+            label="Already have an account? Sign in instead!"
+            flat
+            color="primary"
+            size="md"
+            :ripple="{ early: true }"
+            @click="router.push({ name: 'sign-in' })"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent, ref, reactive } from 'vue';
+import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
+import useAuthUser from 'src/composables/useAuthUser';
+import useSupabase from 'src/boot/supabase';
+import useApi from 'src/composables/useApi';
 
 export default defineComponent({
   name: 'SignUpPage',
   components: {},
   setup() {
-    const email = ref('');
-    const password = ref('');
-    const name = ref('');
-    const className = ref('');
+    const $q = useQuasar();
+    const { post } = useApi();
+
+    const email = ref('k.thiha10.2.mail@gmail.com');
+    const password = ref('1234567');
+    const name = ref('Human');
+    const className = ref('Section E');
 
     const classes = reactive([
       'A Level',
       'Section A',
       'Section B',
       'Section C',
-      'Section D',
-      'Section E',
+      'Year-8',
+      'Year-9',
       'Alumni',
+      'Teacher',
     ]);
 
     const router = useRouter();
-    const confirm = () => {
-      router.push({ name: 'home' });
+
+    const { supabase } = useSupabase();
+    const confirm = async () => {
+      const { user, error } = await supabase.auth.signUp({
+        email: email.value,
+        password: password.value,
+      });
+
+      if (error != undefined) {
+        $q.notify({
+          message: 'Registration Error',
+          caption: error.message,
+          color: 'primary',
+        });
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.value,
+          password: password.value,
+        });
+
+        const user = await post('users', {
+          id: data.user.id,
+          name: name.value,
+          email: email.value,
+          class: className.value,
+        });
+
+        router.push({ name: 'home' });
+      }
+
+      console.log(user);
+
+      //router.push({ name: 'home' });
     };
 
-    return { email, password, name, className, classes, confirm };
+    return { email, password, name, className, classes, confirm, router };
   },
 });
 </script>

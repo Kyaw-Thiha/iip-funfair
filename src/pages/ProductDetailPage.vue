@@ -2,6 +2,7 @@
   <!--Vue Starport-->
   <div class="q-mb-xl">
     <section
+      v-if="Object.keys(product).length > 0"
       class="full-screen product"
       :style="{ '--imageURL': `url('${product.image}')` }"
     >
@@ -21,17 +22,17 @@
         />
       </div>
     </section>
-    <section class="full-screen q-mt-xl">
+    <section v-if="members.length > 0" class="full-screen q-mt-xl">
       <h3 class="text-center q-mb-xl">Members</h3>
       <div class="row q-mx-lg q-mx-sm-sm">
         <div
           class="col-md-3 col-sm-4 col-xs-12 q-gutter-sm q-mb-xl"
-          v-for="(member, index) in product.members"
+          v-for="(member, index) in members"
           :key="index"
         >
           <div class="row items-center justify-evenly">
             <q-avatar size="128px">
-              <img :src="member.photo" :alt="member.name"
+              <img :src="member.image" :alt="member.name"
             /></q-avatar>
 
             <h4 class="q-mb-sm q-mt-lg q-mx-none col-12 text-center">
@@ -58,62 +59,123 @@
       </div>
     </section>
 
+    <div v-if="!Object.keys(product).length > 0">
+      <div class="full-screen row items-center justify-evenly">
+        <q-spinner-hourglass color="primary" size="8em" />
+      </div>
+    </div>
+
     <purchase-dialog
+      :productID="route.params.id"
       :name="product.name"
       :price="product.price"
+      :name_abbreviation="product.name_abbreviation"
       v-model="isPurchaseDialogOpen"
       @bought="router.push({ name: 'purchased-tickets' })"
     />
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+<script>
+import { defineComponent, reactive, ref, onMounted } from 'vue';
 import PurchaseDialog from 'src/components/PurchaseDialog.vue';
 import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
+
+import useApi from 'src/composables/useApi';
+
+// interface Product {
+//   name: string;
+//   name_abbreviation: string;
+//   description: string;
+//   product_type: string;
+//   image: string;
+//   price: number;
+//   shop: string;
+// }
 
 export default defineComponent({
   name: 'ProductDetailPage',
   components: { PurchaseDialog },
   setup() {
     const router = useRouter();
+    const route = useRoute();
 
-    const product = reactive({
-      name: 'Good Foods',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
-      price: 5000,
-      image:
-        'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-      members: [
-        {
-          name: 'Kevin',
-          photo: 'https://cdn.quasar.dev/img/avatar4.jpg',
-          class: 'A Level',
-        },
-        {
-          name: 'Sai Sai',
-          photo: 'https://cdn.quasar.dev/img/avatar1.jpg',
-          class: 'A Level',
-        },
-        {
-          name: 'Hnin Oo',
-          photo: 'https://cdn.quasar.dev/img/avatar3.jpg',
-          class: 'A Level',
-        },
-        {
-          name: 'Yadanar',
-          photo: 'https://cdn.quasar.dev/img/avatar2.jpg',
-          class: 'A Level',
-        },
-      ],
+    const { getById } = useApi();
+    const fetchProduct = async () => {
+      const fetchedProduct = await getById('product', route.params.id);
+
+      //Fetching the shop
+      const shop = await getById(
+        'shop',
+        fetchedProduct.shop,
+        '*, members:shop_member(*)'
+      );
+
+      //Fetching the shop members
+      for (var i = 0; i < shop.members.length; i++) {
+        const fetchedUser = await getById('users', shop.members[i].user);
+
+        members.push(fetchedUser);
+        if (fetchedUser.image == undefined || fetchedUser.image == '') {
+          //Adding in the image path if image
+          members[
+            i
+          ].image = `https://avatars.dicebear.com/api/micah/${fetchedUser.id}.svg`;
+        }
+      }
+
+      //Adding the keys
+      Object.keys(fetchedProduct).forEach((key) => {
+        product[key] = fetchedProduct[key];
+      });
+    };
+
+    onMounted(async () => {
+      await fetchProduct();
     });
+
+    const product = reactive({});
+    const members = reactive([]);
+
+    // var product = reactive({
+    //   name: 'Good Foods',
+    //   description:
+    //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+    //   price: 5000,
+    //   image:
+    //     'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
+    //   members: [
+    //     {
+    //       name: 'Kevin',
+    //       photo: 'https://cdn.quasar.dev/img/avatar4.jpg',
+    //       class: 'A Level',
+    //     },
+    //     {
+    //       name: 'Sai Sai',
+    //       photo: 'https://cdn.quasar.dev/img/avatar1.jpg',
+    //       class: 'A Level',
+    //     },
+    //     {
+    //       name: 'Hnin Oo',
+    //       photo: 'https://cdn.quasar.dev/img/avatar3.jpg',
+    //       class: 'A Level',
+    //     },
+    //     {
+    //       name: 'Yadanar',
+    //       photo: 'https://cdn.quasar.dev/img/avatar2.jpg',
+    //       class: 'A Level',
+    //     },
+    //   ],
+    // });
 
     const isPurchaseDialogOpen = ref(false);
 
     return {
       router,
+      route,
       product,
+      members,
       isPurchaseDialogOpen,
     };
   },

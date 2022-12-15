@@ -26,20 +26,32 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useQuasar } from 'quasar';
+import useApi from 'src/composables/useApi';
 
 import ConfirmDialog from 'src/components/ConfirmDialog.vue';
+import { User } from '@supabase/gotrue-js';
+
+interface UserInterface {
+  id: string;
+  email: string;
+}
 
 export default defineComponent({
   name: 'InviteMemberDialog',
   components: { ConfirmDialog },
+  props: {
+    shopID: String,
+  },
   setup(props, context) {
     const $q = useQuasar();
     const screen = $q.screen;
 
+    const { filterByProperties, post } = useApi();
+
     const email = ref('');
     const isOpen = ref(false);
 
-    const invite = () => {
+    const invite = async () => {
       if (email.value == '') {
         //Email is empty
         $q.notify({
@@ -56,7 +68,13 @@ export default defineComponent({
         });
       } else {
         //Send a request to server
-        if (false) {
+        const users = await filterByProperties(
+          'users',
+          { email: email.value },
+          'id'
+        );
+
+        if (users.length == 0) {
           //Account with email does not exist
           $q.notify({
             message: 'Account does not exist',
@@ -64,9 +82,17 @@ export default defineComponent({
             color: 'primary',
           });
         } else {
+          const changedUser = users[0] as unknown;
+          const fetchedUser = changedUser as User;
+
+          await post('shop_member', {
+            user: fetchedUser.id,
+            shop: props.shopID,
+          });
+
           $q.notify({
             message: `The user with email ${email.value} has been added`,
-            caption: '',
+            caption: 'Refresh the page to see changes',
             color: 'primary',
           });
         }

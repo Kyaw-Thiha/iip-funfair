@@ -34,7 +34,9 @@
   </q-card>
   <purchase-dialog
     :name="(name as string)"
+    :productID="id"
     :price="price"
+    :name_abbreviation="(name_abbreviation as string)"
     v-model="isPurchaseDialogOpen"
     @bought="router.push({ name: 'purchased-tickets' })"
   />
@@ -51,6 +53,7 @@ export interface ProductInterface {
   id: string;
   image: string;
   name: string;
+  name_abbreviation: string;
   productType: string;
   price: number;
 }
@@ -62,6 +65,7 @@ export default defineComponent({
     id: String,
     image: String,
     name: String,
+    name_abbreviation: String,
     productType: String,
     price: Number,
   },

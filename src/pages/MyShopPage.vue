@@ -1,7 +1,7 @@
 <template>
   <!--Vue Starport-->
 
-  <div class="q-mb-xl">
+  <div v-if="!isLoading" class="q-mb-xl">
     <section
       class="full-screen product"
       :style="{ '--imageURL': `url('${product.image}')` }"
@@ -18,7 +18,7 @@
           size="xl"
           color="primary"
           :ripple="{ early: true }"
-          :to="{ name: 'edit-shop' }"
+          :to="{ name: 'edit-shop', params: { id: product.id } }"
         />
       </div>
     </section>
@@ -27,12 +27,12 @@
       <div class="row q-mx-lg q-mx-sm-sm">
         <div
           class="col-md-3 col-sm-4 col-xs-12 q-gutter-sm q-mb-xl"
-          v-for="(member, index) in product.members"
+          v-for="(member, index) in members"
           :key="index"
         >
           <div class="row items-center justify-evenly">
             <q-avatar size="128px">
-              <img :src="member.photo" :alt="member.name"
+              <img :src="member.image" :alt="member.name"
             /></q-avatar>
 
             <h4 class="q-mb-sm q-mt-lg q-mx-none col-12 text-center">
@@ -88,54 +88,131 @@
 
     <invite-member-dialog
       v-model="inviteMemberDialog"
+      :shopID="shopID"
       @userAdded="inviteMemberDialog = false"
     />
   </div>
+
+  <!-- Loading -->
+  <div v-else>
+    <div class="full-screen row items-center justify-evenly">
+      <q-spinner-hourglass color="primary" size="8em" />
+    </div>
+  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+<script>
+import { defineComponent, reactive, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import useApi from 'src/composables/useApi';
+import useAuthUser from 'src/composables/useAuthUser';
+
 import InviteMemberDialog from 'src/components/InviteMemberDialog.vue';
 
 export default defineComponent({
   name: 'ProductDetailPage',
   components: { InviteMemberDialog },
   setup() {
-    const product = reactive({
-      name: 'Good Foods',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
-      price: 5000.0,
-      image:
-        'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-      members: [
-        {
-          name: 'Kevin',
-          photo: 'https://cdn.quasar.dev/img/avatar4.jpg',
-          class: 'A Level',
-        },
-        {
-          name: 'Sai Sai',
-          photo: 'https://cdn.quasar.dev/img/avatar1.jpg',
-          class: 'A Level',
-        },
-        {
-          name: 'Hnin Oo',
-          photo: 'https://cdn.quasar.dev/img/avatar3.jpg',
-          class: 'A Level',
-        },
-        {
-          name: 'Yadanar',
-          photo: 'https://cdn.quasar.dev/img/avatar2.jpg',
-          class: 'A Level',
-        },
-      ],
+    const router = useRouter();
+    const { getById } = useApi();
+    const { user } = useAuthUser();
+
+    onMounted(async () => {
+      //Starting the loading process
+      isLoading.value = true;
+
+      //Checking if the user already has shop
+      //If the user doesn't have a shop, he/she will be redirected to edit shop page
+      const fetchedUser = await getById(
+        'users',
+        user.value.id,
+        'shops:shop_member(*)'
+      );
+
+      if (fetchedUser.shops.length == 0) {
+        router.replace({ name: 'create-shop' });
+      } else {
+        shopID.value = fetchedUser.shops[0].shop;
+        await fetchProduct(shopID.value);
+      }
+
+      isLoading.value = false;
     });
+
+    const fetchProduct = async (shopID) => {
+      console.log(shopID);
+      //Fetching the shop
+      const shop = await getById(
+        'shop',
+        shopID,
+        '*, members:shop_member(*),products:product(*)'
+      );
+
+      //Fetching the shop members
+      for (var i = 0; i < shop.members.length; i++) {
+        const fetchedUser = await getById('users', shop.members[i].user);
+
+        members.push(fetchedUser);
+        if (fetchedUser.image == undefined || fetchedUser.image == '') {
+          //Adding in the image path if image
+          members[
+            i
+          ].image = `https://avatars.dicebear.com/api/micah/${fetchedUser.id}.svg`;
+        }
+      }
+
+      //Fetching the product
+      const fetchedProduct = shop.products[0];
+
+      //Adding the keys
+      Object.keys(fetchedProduct).forEach((key) => {
+        product[key] = fetchedProduct[key];
+      });
+    };
+
+    const shopID = ref('');
+
+    const product = reactive({});
+    const members = reactive([]);
+    const isLoading = ref(false);
+    // const product = reactive({
+    //   name: 'Good Foods',
+    //   description:
+    //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+    //   price: 5000.0,
+    //   image:
+    //     'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
+    //   members: [
+    //     {
+    //       name: 'Kevin',
+    //       photo: 'https://cdn.quasar.dev/img/avatar4.jpg',
+    //       class: 'A Level',
+    //     },
+    //     {
+    //       name: 'Sai Sai',
+    //       photo: 'https://cdn.quasar.dev/img/avatar1.jpg',
+    //       class: 'A Level',
+    //     },
+    //     {
+    //       name: 'Hnin Oo',
+    //       photo: 'https://cdn.quasar.dev/img/avatar3.jpg',
+    //       class: 'A Level',
+    //     },
+    //     {
+    //       name: 'Yadanar',
+    //       photo: 'https://cdn.quasar.dev/img/avatar2.jpg',
+    //       class: 'A Level',
+    //     },
+    //   ],
+    // });
 
     const inviteMemberDialog = ref(false);
 
     return {
+      shopID,
       product,
+      members,
+      isLoading,
       inviteMemberDialog,
     };
   },

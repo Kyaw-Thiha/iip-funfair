@@ -61,7 +61,7 @@
                 {{ product.name }}
               </h1>
               <h3 class="q-mt-lg text-center">
-                {{ product.productType }}
+                {{ product.product_type }}
               </h3>
               <div class="text-center q-mt-xl">
                 <q-btn
@@ -82,7 +82,7 @@
       <div v-else class="absolute-full flex flex-center q-mx-md">
         <div class="product-info">
           <h2 class="q-my-sm text-center">{{ product.name }}</h2>
-          <h5 class="product-type q-mt-md">{{ product.productType }}</h5>
+          <h5 class="product-type q-mt-md">{{ product.product_type }}</h5>
           <div class="q-mt-xl text-center">
             <q-btn
               label="Buy Ticket"
@@ -106,7 +106,7 @@ export interface ProductCarouselInterface {
   id: string;
   image: string;
   name: string;
-  productType: string;
+  product_type: string;
 }
 
 export default defineComponent({

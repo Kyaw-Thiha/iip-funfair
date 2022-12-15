@@ -11,10 +11,10 @@
 
     <q-separator v-if="screen.lt.md" class="q-my-md" inset color="primary" />
 
-    <section class="full-screen">
-      <product-carousel :products="products" />
+    <section class="full-screen" v-if="carouselProducts.length > 0">
+      <product-carousel :products="carouselProducts" />
     </section>
-    <section class="full-screen q-mb-xl">
+    <section class="full-screen q-mb-xl" v-if="selectedProducts.length > 0">
       <h3 class="text-center products-title">Products</h3>
       <div class="row items-center justify-evenly">
         <q-input
@@ -45,27 +45,40 @@
           :id="product.id"
           :image="product.image"
           :name="product.name"
-          :product-type="product.productType"
+          :name_abbreviation="product.name_abbreviation"
+          :product-type="product.product_type"
           :price="product.price"
         />
       </div>
+    </section>
+    <section v-if="isLoggedIn()">
+      <q-btn
+        class="float-right"
+        :size="screen.lt.md ? 'md' : 'lg'"
+        label="Log Out"
+        color="primary"
+        @click="logout()"
+        :ripple="{ early: true }"
+      />
     </section>
   </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref, reactive, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
+import useApi from 'src/composables/useApi';
+import useAuthUser from 'src/composables/useAuthUser';
 
 import ProductCarousel from 'components/ProductCarousel.vue';
 import ProductCard from 'components/ProductCard.vue';
-import internal from 'stream';
 
 interface Product {
   id: string;
   name: string;
+  name_abbreviation: string;
   image: string;
-  productType: string;
+  product_type: string;
   price: number;
 }
 
@@ -76,34 +89,65 @@ export default defineComponent({
     const $q = useQuasar();
     const screen = $q.screen;
 
-    const products = reactive([
-      {
-        id: '0',
-        name: 'Happy Meal',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        productType: 'Hot Dog',
-        price: 5000,
-      },
-      {
-        id: '1',
-        name: 'Sand Witches',
-        image:
-          'https://recipes.timesofindia.com/thumb/60256016.cms?width=1200&height=900',
-        productType: 'Cheese Sandwich',
-        price: 10000,
-      },
-      {
-        id: '2',
-        name: 'Burley Burger',
-        image:
-          'https://www.aspicyperspective.com/wp-content/uploads/2020/07/best-hamburger-patties-1.jpg',
-        productType: 'Hamburger',
-        price: 5000,
-      },
-    ]);
+    const { logout, isLoggedIn } = useAuthUser();
+    const { list } = useApi();
 
-    var selectedProducts = reactive(JSON.parse(JSON.stringify(products)));
+    const fetchProducts = async () => {
+      const fetchedProducts = await list('product');
+
+      fetchedProducts.forEach((product) => {
+        products.push(product);
+        selectedProducts.push(product);
+      });
+    };
+
+    onMounted(async () => {
+      await fetchProducts();
+      getCarouselProducts();
+    });
+
+    var products = reactive(new Array<Product>());
+    var selectedProducts = reactive(new Array<Product>());
+
+    const carouselProducts = reactive(new Array<Product>());
+    const getCarouselProducts = () => {
+      const shuffled = [...products].sort(() => 0.5 - Math.random());
+
+      const chosenProducts = shuffled.slice(0, 5);
+
+      chosenProducts.forEach((product) => {
+        carouselProducts.push(product);
+      });
+    };
+
+    // const products = reactive([
+    //   {
+    //     id: '0',
+    //     name: 'Happy Meal',
+    //     image:
+    //       'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
+    //     productType: 'Hot Dog',
+    //     price: 5000,
+    //   },
+    //   {
+    //     id: '1',
+    //     name: 'Sand Witches',
+    //     image:
+    //       'https://recipes.timesofindia.com/thumb/60256016.cms?width=1200&height=900',
+    //     productType: 'Cheese Sandwich',
+    //     price: 10000,
+    //   },
+    //   {
+    //     id: '2',
+    //     name: 'Burley Burger',
+    //     image:
+    //       'https://www.aspicyperspective.com/wp-content/uploads/2020/07/best-hamburger-patties-1.jpg',
+    //     productType: 'Hamburger',
+    //     price: 5000,
+    //   },
+    // ]);
+
+    //var selectedProducts = reactive(JSON.parse(JSON.stringify(products)));
 
     const searchString = ref('');
     const search = () => {
@@ -111,7 +155,7 @@ export default defineComponent({
         //Filtering the products based on search string
         const filteredProducts = products.filter((product) => {
           const lowerProductName = product.name.toLowerCase();
-          const lowerProductType = product.productType.toLowerCase();
+          const lowerProductType = product.product_type.toLowerCase();
 
           return (
             lowerProductName.includes(searchString.value) ||
@@ -135,7 +179,17 @@ export default defineComponent({
       }
     };
 
-    return { screen, products, selectedProducts, searchString, search };
+    return {
+      screen,
+      fetchProducts,
+      products,
+      carouselProducts,
+      selectedProducts,
+      searchString,
+      search,
+      logout,
+      isLoggedIn,
+    };
   },
 });
 </script>

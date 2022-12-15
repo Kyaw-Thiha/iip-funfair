@@ -43,6 +43,12 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'edit-shop',
+        name: 'create-shop',
+        component: () => import('src/pages/EditShopPage.vue'),
+        meta: { requiresAuth: false }, //Convert this to true
+      },
+      {
+        path: 'edit-shop/:id',
         name: 'edit-shop',
         component: () => import('src/pages/EditShopPage.vue'),
         meta: { requiresAuth: false }, //Convert this to true

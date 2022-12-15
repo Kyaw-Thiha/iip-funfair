@@ -13,7 +13,7 @@
       />
     </div>
 
-    <section class="q-mb-xl">
+    <section v-if="unpaidTickets.length > 0" class="q-mb-xl">
       <ticket-list
         title="Unpaid"
         btnLabel="Pay"
@@ -22,7 +22,7 @@
       />
     </section>
 
-    <section>
+    <section v-if="paidTickets.length > 0">
       <ticket-list
         title="Paid"
         btnLabel="Use"
@@ -31,8 +31,22 @@
       />
     </section>
 
-    <section>
+    <section v-if="usedTickets.length > 0">
       <ticket-list title="Used" btnLabel="" :tickets="usedTickets" />
+    </section>
+
+    <section v-if="noTickets">
+      <div class="full-screen row justify-evenly">
+        <div>
+          <h5 class="col-12 text-center">
+            Hmm...Looks like you havn't sell any ticket yet
+          </h5>
+
+          <div class="col-12 text-center">
+            <h6>Sell tickets and they will show up here :)</h6>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Dialogs for the unpaid tickets -->
@@ -69,79 +83,23 @@
 </template>
 
 <script>
-import { defineComponent, reactive } from 'vue';
+import { defineComponent, reactive, ref, onMounted } from 'vue';
 import QrcodeVue from 'qrcode.vue';
 import TicketList from 'src/components/TicketList.vue';
 import confirmDialog from 'components/ConfirmDialog.vue';
+
+import useApi from 'src/composables/useApi';
+import useAuthUser from 'src/composables/useAuthUser';
 
 export default defineComponent({
   name: 'PurchasedTicketsPage',
   components: { QrcodeVue, TicketList, confirmDialog },
   setup() {
-    const unpaidTickets = reactive([
-      {
-        name: 'One One',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'A Level',
+    const unpaidTickets = reactive([]);
+    const paidTickets = reactive([]);
+    const usedTickets = reactive([]);
 
-        openDialog: false,
-      },
-      {
-        name: 'Htut Myat Min',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'A Level',
-
-        openDialog: false,
-      },
-      {
-        name: 'Win Hein',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'Section D2',
-
-        openDialog: false,
-      },
-    ]);
-
-    const paidTickets = reactive([
-      {
-        name: 'Zyla',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'Section D2',
-
-        openDialog: false,
-      },
-      {
-        name: 'Kevin',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'Section E(Emerald)',
-
-        openDialog: false,
-      },
-      {
-        name: 'Rosey',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'Section F(Diamond)',
-
-        openDialog: false,
-      },
-    ]);
-
-    const usedTickets = reactive([
-      {
-        name: 'Yamin',
-        image:
-          'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-        id: 'Section F(Diamond)',
-
-        openDialog: false,
-      },
-    ]);
+    const noTickets = ref(false);
 
     const openUnpaidDialog = (index) => {
       unpaidTickets[index].openDialog = true;
@@ -151,10 +109,64 @@ export default defineComponent({
       paidTickets[index].openDialog = true;
     };
 
+    const { filterByProperties, getById } = useApi();
+    const { user } = useAuthUser();
+
+    const fetchTickets = async () => {
+      //Fetch the shop of the user
+      const fetchedUser = await getById(
+        'users',
+        user.value.id,
+        'shops:shop_member(shop)'
+      );
+
+      const shop = fetchedUser.shops[0].shop;
+
+      //Fetch the product of the shop
+      const products = await filterByProperties(
+        'product',
+        { shop: shop },
+        'tickets:ticket(product,user,status)'
+      );
+      const tickets = products[0].tickets;
+      console.log(products);
+      for (const ticket of tickets) {
+        const user = await getById('users', ticket.user, 'name,class');
+
+        ticket.name = user.name;
+        ticket.id = user.class;
+        ticket.image = `https://avatars.dicebear.com/api/micah/${user.name}.svg`;
+        if (ticket.status == 'not-paid') {
+          //Tickets that have not been paid
+          unpaidTickets.push(ticket);
+        } else if (ticket.status == 'paid') {
+          //Tickets that have been paid
+          paidTickets.push(ticket);
+        } else {
+          //Tickets that have been used
+          usedTickets.push(ticket);
+        }
+      }
+
+      //If no tickets have been bought yet
+      if (
+        unpaidTickets.length <= 0 &&
+        paidTickets.length <= 0 &&
+        usedTickets.length <= 0
+      ) {
+        noTickets.value = true;
+      }
+    };
+
+    onMounted(() => {
+      fetchTickets();
+    });
+
     return {
       unpaidTickets,
       paidTickets,
       usedTickets,
+      noTickets,
       openUnpaidDialog,
       openPaidDialog,
     };
