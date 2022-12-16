@@ -123,6 +123,7 @@ export default defineComponent({
       paid.forEach(async (ticket) => {
         const product = await getById('product', ticket.product, 'image');
         ticket.id = ticket.reference_no;
+        ticket.name = product.name;
         ticket.image = product.image;
         ticket.openDialog = false;
 
@@ -137,6 +138,7 @@ export default defineComponent({
       used.forEach(async (ticket) => {
         const product = await getById('product', ticket.product, 'image');
         ticket.id = ticket.reference_no;
+        ticket.name = product.name;
         ticket.image = product.image;
         ticket.openDialog = false;
 

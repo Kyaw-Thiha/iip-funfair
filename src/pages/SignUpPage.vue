@@ -1,7 +1,7 @@
 <template>
   <div class="full-screen form-container row items-center justify-evenly">
     <div>
-      <h2 class="heading text-center">Sign In</h2>
+      <h2 class="heading text-center">Sign Up</h2>
       <q-input class="input" outlined bottom-slots v-model="email" label="Email"
         ><template v-slot:hint> <p>Email Address of your account</p> </template>
       </q-input>
