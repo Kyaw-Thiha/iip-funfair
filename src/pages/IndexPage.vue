@@ -5,7 +5,7 @@
         <h1 class="text-primary q-mt-none q-mb-xl q-mb-sm-md q-mb-xs-sm">
           IIP Fun Fair
         </h1>
-        <h3 class="text-white q-mb-none q-mb-sm">coming Dec 21st</h3>
+        <h3 class="text-white q-mb-none q-mb-sm q-mt-md">coming Dec 21st</h3>
       </div>
     </section>
 
@@ -43,6 +43,7 @@
           v-for="product in selectedProducts"
           :key="product.id"
           :id="product.id"
+          :shop="product.shop"
           :image="product.image"
           :name="product.name"
           :name_abbreviation="product.name_abbreviation"
@@ -80,6 +81,7 @@ interface Product {
   image: string;
   product_type: string;
   price: number;
+  shop: string;
 }
 
 export default defineComponent({

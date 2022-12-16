@@ -45,11 +45,11 @@
             :to="{ name: 'my-shop' }"
           />
           <q-btn
-            label="Tickets"
+            label="Preorders"
             color="primary"
             :size="screen.lt.md ? 'md' : 'lg'"
             :ripple="{ early: true }"
-            :to="{ name: 'purchased-tickets' }"
+            :to="{ name: 'preorders' }"
           />
         </div>
       </q-toolbar>

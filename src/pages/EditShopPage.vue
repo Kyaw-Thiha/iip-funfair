@@ -1,91 +1,45 @@
 <template>
   <div class="full-screen form-container row items-center justify-evenly">
     <div v-if="!isLoading">
-      <h2 class="heading">{{ id != undefined ? 'Create' : 'Edit' }} Product</h2>
+      <h2 class="heading">{{ id != undefined ? 'Create' : 'Edit' }} Shop</h2>
+
       <q-input
         class="input"
         outlined
         bottom-slots
-        v-model="product.name"
+        v-model="shop.name"
         label="Name"
-        ><template v-slot:hint> <p>Unique name of your product</p> </template>
+        ><template v-slot:hint> <p>Unique name of your shop</p> </template>
       </q-input>
       <q-input
         class="input"
         outlined
         bottom-slots
-        v-model="product.name_abbreviation"
-        :rules="[(val) => val.length == 3 || 'Please use 3 characters']"
-        label="Name Code"
-        ><template v-slot:hint>
-          <p>
-            Unique 3-words name code. Eg: 'Good Foods' product would be 'GFD'
-          </p>
-          <p>Used when creating ticket for the product</p>
-        </template>
-      </q-input>
-      <q-input
-        class="input"
-        outlined
-        bottom-slots
-        v-model="product.description"
+        v-model="shop.description"
         label="Description"
-        ><template v-slot:hint> <p>Description of your product</p> </template>
-      </q-input>
-      <q-input
-        class="input"
-        outlined
-        bottom-slots
-        v-model="product.product_type"
-        label="Product Type"
-        ><template v-slot:hint>
-          <p>What is your product?</p>
-          <p>Eg: Beef Hamburger / Photo Booth / Math Quiz</p>
-        </template>
+        ><template v-slot:hint> <p>Description of your shop</p> </template>
       </q-input>
       <q-select
         class="input"
         outlined
-        v-model="product.sales_date"
+        v-model="shop.sales_date"
         :options="['20th December', '21st December']"
         label="Sales Date"
         ><template v-slot:hint>
           <p>Select the day you are selling</p>
         </template></q-select
       >
-      <q-input
-        class="input"
-        outlined
-        bottom-slots
-        v-model="product.price"
-        label="Price"
-        ><template v-slot:hint>
-          <p>Price of your product in MMK</p>
-        </template>
-      </q-input>
-      <!-- <q-input
-        class="input"
-        outlined
-        bottom-slots
-        v-model="product.image"
-        label="Image"
-        ><template v-slot:hint>
-          <p>Main hero image of your product</p>
-        </template>
-      </q-input> -->
       <q-file
-        v-if="product.image == ''"
-        v-model="imageFile"
+        v-if="shop.image == ''"
+        v-model="shopImageFile"
         label="Image"
+        hint="Main image of your shop. Used as hero in shop page"
         accept=".jpg,.png,.gif"
-        max-file-size="5000000"
+        max-file-size="10000000"
         clearable
         outlined
-      >
-        <template v-slot:hint>
-          <p>Main hero image of your product</p>
-        </template>
-      </q-file>
+      />
+
       <q-btn
         v-else
         class="q-mb-xl"
@@ -93,23 +47,47 @@
         color="primary"
         size="lg"
         :ripple="{ early: true }"
-        @click="imageDeleteDialog = true"
+        @click="shopImageDeleteDialog = true"
       />
 
-      <confirm-dialog v-model="imageDeleteDialog">
-        <div>
-          <h5>Are you sure you want to delete the image?</h5>
-          <div>
-            <q-btn
-              class="q-my-lg"
-              label="Delete"
-              color="negative"
-              :ripple="{ early: true }"
-              @click="deleteImage"
-            />
-          </div>
-        </div>
-      </confirm-dialog>
+      <q-input
+        class="input"
+        outlined
+        bottom-slots
+        v-model="shop.preorder_perks"
+        label="Preorder Perks"
+        ><template v-slot:hint>
+          <p>Perks for preordering your products</p>
+          <p>Eg: 10% discount / Buy 3, Get 1 Free / Customised Product</p>
+          <p>Leave this as blank if you don't have any perks for preordering</p>
+        </template>
+      </q-input>
+
+      <h3 class="q-mt-xl">Social Media Links (Optional)</h3>
+      <q-input
+        class="input"
+        outlined
+        bottom-slots
+        v-model="social.facebook"
+        label="Facebook"
+        ><template v-slot:hint> <p>Facebook of your shop</p> </template>
+      </q-input>
+      <q-input
+        class="input"
+        outlined
+        bottom-slots
+        v-model="social.instagram"
+        label="Instagram"
+        ><template v-slot:hint> <p>Instagram of your shop</p> </template>
+      </q-input>
+      <q-input
+        class="input"
+        outlined
+        bottom-slots
+        v-model="social.discord"
+        label="Discord"
+        ><template v-slot:hint> <p>Discord of your shop</p> </template>
+      </q-input>
 
       <div class="text-center">
         <q-btn
@@ -125,6 +103,21 @@
     <div v-else>
       <q-spinner-hourglass color="primary" size="8em" />
     </div>
+
+    <confirm-dialog v-model="shopImageDeleteDialog">
+      <div>
+        <h5>Are you sure you want to delete the image?</h5>
+        <div>
+          <q-btn
+            class="q-my-lg"
+            label="Delete"
+            color="negative"
+            :ripple="{ early: true }"
+            @click="deleteShopImage"
+          />
+        </div>
+      </div>
+    </confirm-dialog>
   </div>
 </template>
 
@@ -145,7 +138,7 @@ export default defineComponent({
     const route = useRoute();
     const $q = useQuasar();
 
-    //Checking for product id in the route
+    //Checking for shop id in the route
     const id = ref('');
 
     const isLoading = ref(false);
@@ -157,54 +150,66 @@ export default defineComponent({
       } else {
         id.value = route.params.id;
 
-        //Fetch the product based on id
-        await fetchProducts();
+        //Fetch the shop based on id
+        await fetchShop();
       }
       isLoading.value = false;
     });
 
-    const fetchProducts = async () => {
-      const fetchedProduct = await getById('product', id.value);
+    const fetchShop = async () => {
+      const fetchedShop = await getById(
+        'shop',
+        id.value,
+        '*,socials:social(*)'
+      );
 
       //Adding the keys
-      setProduct(fetchedProduct);
-    };
+      setShop(fetchedShop);
 
-    const product = reactive({
-      id: '',
-      name: '',
-      name_abbreviation: '',
-      description: '',
-      product_type: '',
-      sales_date: '20th December',
-      price: 0,
-      image: '',
-      image_internal: '',
-    });
-
-    const setProduct = (newProduct) => {
+      const fetchedSocial = fetchedShop.socials[0];
       //Adding the keys
-      Object.keys(newProduct).forEach((key) => {
-        product[key] = newProduct[key];
+      Object.keys(fetchedSocial).forEach((key) => {
+        social[key] = fetchedSocial[key];
       });
     };
 
-    const imageFile = ref(null);
-    const imageDeleteDialog = ref(null);
+    const shop = reactive({
+      id: '',
+      name: '',
+      description: '',
+      sales_date: '20th December',
+      image: '',
+      preorder_perks: '',
+    });
+    const social = reactive({
+      id: '',
+      facebook: '',
+      instagram: '',
+      discord: '',
+    });
 
-    const deleteImage = async () => {
-      await deleteImg('iip-funfair-shop', product.image_internal);
+    const setShop = (newShop) => {
+      //Adding the keys
+      Object.keys(newShop).forEach((key) => {
+        shop[key] = newShop[key];
+      });
+    };
+
+    const shopImageFile = ref(null);
+    const shopImageDeleteDialog = ref(false);
+
+    const deleteShopImage = async () => {
+      await deleteImg('iip-funfair-shop', shop.id);
 
       const { data, error } = await supabase
-        .from('product')
+        .from('shop')
         .update({
           image: '',
-          image_internal: '',
         })
-        .eq('id', product.id)
+        .eq('id', shop.id)
         .select();
 
-      setProduct(data);
+      setShop(data);
 
       $q.notify({
         message: 'Image has been sucessfully deleted',
@@ -222,23 +227,25 @@ export default defineComponent({
     const { supabase } = useSupabase();
 
     const confirm = async () => {
+      isLoading.value = true;
       //Validate if every fields are filled
       if (
-        product.name != '' &&
-        product.name_abbreviation != '' &&
-        product.description != '' &&
-        product.product_type != '' &&
-        product.sales_date != '' &&
-        product.price != 0 &&
-        (imageFile.value != null || product.image != '')
+        shop.name != '' &&
+        shop.description != '' &&
+        shop.sales_date != '' &&
+        (shopImageFile.value != null || shop.image != '')
       ) {
         if (id.value == '') {
-          await createProduct();
+          await createShop();
         } else {
-          await editProduct();
+          await editShop();
         }
 
-        router.push({ name: 'my-shop' });
+        if (route.params.id == undefined) {
+          router.push({ name: 'create-product' });
+        } else {
+          router.push({ name: 'my-shop' });
+        }
       } else {
         $q.notify({
           message: 'Data is incomplete',
@@ -246,55 +253,58 @@ export default defineComponent({
           color: 'primary',
         });
       }
+      isLoading.value = false;
     };
 
-    const createProduct = async () => {
+    const createShop = async () => {
       //Setting up the shop
-      const shop = await post('shop', {});
+      const fetchedShop = await post('shop', {
+        name: shop.name,
+        description: shop.description,
+        sales_date: shop.sales_date,
+        preorder_perks: shop.preorder_perks,
+      });
+      const shopID = fetchedShop[0].id;
+
+      //Uploading the image
+      const fetchedShopImage = await uploadImg(
+        shopImageFile.value,
+        'iip-funfair-shop',
+        `shop/${shopID}`
+      );
+
+      //Getting public url
+      var { data } = supabase.storage
+        .from('iip-funfair-shop')
+        .getPublicUrl(fetchedShopImage);
+
+      shop.image = data.publicUrl;
+      await update('shop', { id: shopID, image: shop.image });
 
       //Creating the shop member
-      const shopID = shop[0].id;
       const shopMember = await post('shop_member', {
         user: user.value.id,
         shop: shopID,
       });
 
-      //Uploading the image
-      const fetchedImage = await uploadImg(
-        imageFile.value,
-        'iip-funfair-shop',
-        shopID
-      );
-
-      //Getting public url
-      const { data } = supabase.storage
-        .from('iip-funfair-shop')
-        .getPublicUrl(fetchedImage);
-      const public_url = data.publicUrl;
-      //const public_url = await getUrlPublic(fetchedImage, 'iip-funfair-shop');
-
-      //Creating the product
-      const fetchedProduct = await post('product', {
+      //Creating social links
+      console.log(social);
+      const fetchedSocial = await post('social', {
         shop: shopID,
-        name: product.name,
-        name_abbreviation: product.name_abbreviation,
-        description: product.description,
-        product_type: product.product_type,
-        sales_date: product.sales_date,
-        price: product.price,
-        image: public_url,
-        image_internal: fetchedImage,
+        facebook: social.facebook,
+        instagram: social.instagram,
+        discord: social.discord,
       });
     };
 
-    const editProduct = async () => {
+    const editShop = async () => {
       //Checking if the image was reset
-      if (product.image == '') {
+      if (shop.image == '') {
         //Uploading the image
         const fetchedImage = await uploadImg(
-          imageFile.value,
+          shopImageFile.value,
           'iip-funfair-shop',
-          product.id
+          `shop/${shop.id}`
         );
 
         //Getting public url
@@ -303,36 +313,42 @@ export default defineComponent({
           .getPublicUrl(fetchedImage);
         const public_url = data.publicUrl;
 
-        product.image = public_url;
-        product.image_internal = fetchedImage;
+        shop.image = public_url;
       }
 
-      //Updating the product values
+      //Updating the shop values
       const { data, error } = await supabase
-        .from('product')
+        .from('shop')
         .update({
-          id: product.id,
-          shop: product.shop,
-          name: product.name,
-          name_abbreviation: product.name_abbreviation,
-          description: product.description,
-          product_type: product.product_type,
-          sales_date: product.sales_date,
-          price: product.price,
-          image: product.image,
-          image_internal: product.image_internal,
+          id: shop.id,
+          name: shop.name,
+          description: shop.description,
+          sales_date: shop.sales_date,
+          preorder_perks: shop.preorder_perks,
+          image: shop.image,
         })
-        .eq('id', product.id)
+        .eq('id', shop.id)
+        .select();
+
+      const { socialData, socialError } = await supabase
+        .from('social')
+        .update({
+          facebook: social.facebook,
+          instagram: shop.instagram,
+          discord: shop.discord,
+        })
+        .eq('id', social.id)
         .select();
     };
 
     return {
       isLoading,
-      product,
+      shop,
+      social,
       id,
-      imageFile,
-      imageDeleteDialog,
-      deleteImage,
+      shopImageFile,
+      shopImageDeleteDialog,
+      deleteShopImage,
       confirm,
     };
   },

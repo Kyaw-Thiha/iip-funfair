@@ -4,24 +4,123 @@
   <div v-if="!isLoading" class="q-mb-xl">
     <section
       class="full-screen product"
-      :style="{ '--imageURL': `url('${product.image}')` }"
+      :style="{ '--imageURL': `url('${shop.image}')` }"
     >
       <div class="q-mx-md-xl q-mx-sm-lg q-mx-xs-sm">
-        <h2 class="text-primary">{{ product.name }}</h2>
-        <h5>{{ product.description }}</h5>
-        <h4 class="q-mt-md-xl q-mt-sm-lg q-mt-xs-md">
-          Price: {{ product.price }}
-        </h4>
+        <div class="shop-info">
+          <h2 class="text-primary">{{ shop.name }}</h2>
+          <h6 class="text-primary">{{ shop.sales_date }}</h6>
+          <h5>{{ shop.description }}</h5>
+
+          <p class="preorder_perks">{{ shop.preorder_perks }} for PreOrders</p>
+        </div>
+
         <q-btn
           class="q-mb-md q-mb-md-none q-mb-lg-none float-right"
           label="Edit Shop"
           size="xl"
           color="primary"
           :ripple="{ early: true }"
-          :to="{ name: 'edit-shop', params: { id: product.id } }"
+          :to="{ name: 'edit-shop', params: { id: shop.id } }"
         />
       </div>
     </section>
+
+    <!-- Products -->
+    <section class="full-screen q-mt-xl">
+      <h3 class="text-center q-mb-xl">Products</h3>
+      <div class="row q-mx-lg q-mx-sm-sm">
+        <div
+          class="col-md-3 col-sm-4 col-xs-12 q-gutter-sm q-mb-xl"
+          v-for="(product, index) in products"
+          :key="index"
+        >
+          <div
+            class="product-card q-ma-md q-pa-md row items-center justify-evenly"
+          >
+            <q-avatar size="128px">
+              <img :src="product.image" :alt="product.name" />
+              /></q-avatar
+            >
+
+            <h4 class="q-mb-sm q-mt-lg q-mx-none col-12 text-center">
+              {{ product.name }}
+            </h4>
+
+            <h6
+              class="member-class q-py-xs q-px-sm q-mt-md-lg q-mt-sm-md q-mt-xs-sm inline-block"
+            >
+              {{ product.product_type }}
+            </h6>
+            <h6 class="col-12 text-center q-mt-md">
+              Price: {{ product.price }}Ks
+            </h6>
+            <div class="col-12 text-center q-mt-md">
+              <q-btn
+                label="Edit Product"
+                size="lg"
+                color="primary"
+                :ripple="{ early: true }"
+                :to="{ name: 'edit-product', params: { id: product.id } }"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="q-mt-lg text-center">
+        <q-btn
+          class="main-btn q-mb-xl"
+          label="Add Product"
+          size="xl"
+          color="primary"
+          :ripple="{ early: true }"
+          rounded
+          :to="{ name: 'create-product' }"
+        />
+      </div>
+    </section>
+
+    <!-- Social Media links -->
+    <section>
+      <div class="q-ml-lg">
+        <h4 class="q-mb-xl">Social Media Links</h4>
+        <q-btn
+          v-if="social.facebook != ''"
+          class="q-mb-xl"
+          label="Facebook"
+          size="xl"
+          color="primary"
+          :ripple="{ early: true }"
+          rounded
+          :href="social.facebook"
+          target="_blank"
+        />
+        <q-btn
+          v-if="social.instagram != ''"
+          class="q-mb-xl"
+          label="Facebook"
+          size="xl"
+          color="primary"
+          :ripple="{ early: true }"
+          rounded
+          :href="social.instagram"
+          target="_blank"
+        />
+        <q-btn
+          v-if="social.discord != ''"
+          class="q-mb-xl"
+          label="Facebook"
+          size="xl"
+          color="primary"
+          :ripple="{ early: true }"
+          rounded
+          :href="social.discord"
+          target="_blank"
+        />
+      </div>
+    </section>
+
+    <!-- Members -->
     <section class="full-screen q-mt-xl">
       <h3 class="text-center q-mb-xl">Members</h3>
       <div class="row q-mx-lg q-mx-sm-sm">
@@ -58,12 +157,13 @@
         />
       </div>
     </section>
+
     <q-separator
       class="q-mb-lg q-mb-sm-xl q-mt-xl q-mt-sm-lg q-mt-md-none"
       inset
     />
 
-    <section>
+    <!-- <section>
       <h3 class="text-center q-mb-sm q-mb-sm-xl">Tickets</h3>
       <div class="q-mt-md text-center">
         <q-btn
@@ -84,7 +184,7 @@
           :to="{ name: 'ticket-management' }"
         />
       </div>
-    </section>
+    </section> -->
 
     <invite-member-dialog
       v-model="inviteMemberDialog"
@@ -141,11 +241,21 @@ export default defineComponent({
 
     const fetchProduct = async (shopID) => {
       //Fetching the shop
-      const shop = await getById(
+      const fetchedShop = await getById(
         'shop',
         shopID,
-        '*, members:shop_member(*),products:product(*)'
+        '*, members:shop_member(*),products:product(*),socials:social(*)'
       );
+      //Adding the keys
+      Object.keys(fetchedShop).forEach((key) => {
+        shop[key] = fetchedShop[key];
+      });
+
+      //Fetching the social media accounts
+      const fetchedSocial = shop.socials[0];
+      Object.keys(fetchedSocial).forEach((key) => {
+        social[key] = fetchedSocial[key];
+      });
 
       //Fetching the shop members
       for (var i = 0; i < shop.members.length; i++) {
@@ -160,19 +270,18 @@ export default defineComponent({
         }
       }
 
-      //Fetching the product
-      const fetchedProduct = shop.products[0];
-
-      //Adding the keys
-      Object.keys(fetchedProduct).forEach((key) => {
-        product[key] = fetchedProduct[key];
-      });
+      //Fetching the products
+      for (const product of shop.products) {
+        products.push(product);
+      }
     };
 
     const shopID = ref('');
 
-    const product = reactive({});
+    const products = reactive([]);
+    const shop = reactive({});
     const members = reactive([]);
+    const social = reactive({});
     const isLoading = ref(false);
     // const product = reactive({
     //   name: 'Good Foods',
@@ -209,8 +318,10 @@ export default defineComponent({
 
     return {
       shopID,
-      product,
+      shop,
+      products,
       members,
+      social,
       isLoading,
       inviteMemberDialog,
     };
@@ -242,9 +353,38 @@ export default defineComponent({
   z-index: -1;
 }
 
-.member-photo-container {
-  width: 100%;
+.shop-info {
+  min-width: 600px;
+  margin-bottom: 60px;
+
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  padding: 10px 20px;
+
+  .preorder_perks {
+    margin-top: 20px;
+    padding: 3px 5px;
+    display: inline-block;
+    border-radius: 20px;
+    background-color: $primary;
+    color: white;
+  }
+
+  @media screen and (max-width: $breakpoint-sm-max) {
+    min-width: 400px;
+  }
+
+  @media screen and (max-width: $breakpoint-xs-max) {
+    min-width: 350px;
+  }
 }
+
+.product-card {
+  border-radius: 20px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
 .member-class {
   border: 3px solid black;
   border-radius: 20px;

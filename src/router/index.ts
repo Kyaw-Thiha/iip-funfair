@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 
 import routes from './routes';
+import useAuthUser from 'src/composables/useAuthUser';
 
 /*
  * If not building with SSR mode, you can
@@ -34,13 +35,11 @@ export default route(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
+  const { isLoggedIn } = useAuthUser();
   Router.beforeEach((to, from) => {
+    const isAuthenticated = isLoggedIn();
     from;
-    if (
-      to.meta.requiresAuth &&
-      //!isAuthenticated &&
-      to.name !== 'sign-in'
-    ) {
+    if (to.meta.requiresAuth && !isAuthenticated && to.name !== 'sign-in') {
       // redirect the user to the login page
       return { name: 'sign-in' };
     }

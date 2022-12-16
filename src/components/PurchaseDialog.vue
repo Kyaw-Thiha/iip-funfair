@@ -2,17 +2,38 @@
   <q-dialog v-model="isOpen" :persistent="false">
     <q-card class="card">
       <q-card-section>
-        <h4>{{ name }}</h4>
+        <h4>Preorder</h4>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <q-input
-          class="q-mt-md"
-          v-model="count"
-          label="Ticket Count"
-          type="number"
-          outlined
-        />
+        <h4>{{ shop.name }}</h4>
+        <h5>{{ shop.sales_date }}</h5>
+        <p class="q-mb-none q-mt-md">
+          Important: You are oblidged to buy the preordered products on the
+          actual fun fair day
+        </p>
+        <p>
+          If you fail to do so, the shop seller has the right to charge you
+          TWICE the amount you preordered
+        </p>
+
+        <div class="q-mt-lg">
+          <div
+            class="q-mb-lg"
+            v-for="(product, index) in products"
+            :key="index"
+          >
+            {{ product.name }} - {{ product.price }}Ks
+            <q-input
+              class="q-mt-md"
+              v-model="counts[index]"
+              label="Ticket Count"
+              type="number"
+              outlined
+            />
+          </div>
+        </div>
+
         <h5 class="q-mt-md">{{ totalCost }} Ks</h5>
       </q-card-section>
 
@@ -21,7 +42,7 @@
           <q-btn
             class="btn"
             :disable="isLoading"
-            label="Buy"
+            label="Preorder"
             color="primary"
             @click="buy"
           />
@@ -32,29 +53,20 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, reactive, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import useApi from 'src/composables/useApi';
 import UseAuthUser from 'src/composables/useAuthUser';
 
 export default defineComponent({
   props: {
-    name: {
-      type: String,
+    shop: {
+      type: Object,
       required: true,
     },
-    productID: {
-      type: String,
+    products: {
+      type: Array,
       required: true,
-    },
-
-    name_abbreviation: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
-      default: 0,
     },
   },
   setup(props, context) {
@@ -66,43 +78,27 @@ export default defineComponent({
     const isLoading = ref(false);
 
     var count = ref(0);
+    var counts = reactive([]);
     var totalCost = computed(() => {
-      return props.price * count.value;
-    });
+      //Calculating the total cost
+      var total = 0;
 
-    const postPurchase = async () => {
-      //Buying request
-      var random_no = Math.floor(100000 + Math.random() * 900000);
-      var tickets = await filterByProperties('ticket', {
-        reference_no: `IIPFunFair-${props.name_abbreviation}-${random_no}`,
-      });
-
-      //If ticket already exists, regenerate new one
-      while (tickets.length > 0) {
-        random_no = Math.floor(100000 + Math.random() * 900000);
-        tickets = await filterByProperties('ticket', {
-          reference_no: `IIPFunFair-${props.name_abbreviation}-${random_no}`,
-        });
+      for (var i = 0; i < counts.length; i++) {
+        const count = counts[i];
+        total = total + count * props.products[i].price;
       }
 
-      //Creating a new ticket
-      const ticket = await post('ticket', {
-        reference_no: `IIPFunFair-${props.name_abbreviation}-${random_no}`,
-        status: 'not-paid',
-        user: user.value.id,
-        product: props.productID,
-      });
-    };
+      return total;
+    });
 
     const checkIfMember = async () => {
-      const product = await getById('product', props.productID, 'shop');
-      const shop = await getById(
+      const fetchedShop = await getById(
         'shop',
-        product.shop,
+        props.shop.id,
         'members:shop_member(user)'
       );
 
-      for (const member of shop.members) {
+      for (const member of fetchedShop.members) {
         if (member.user == user.value.id) {
           return true;
         }
@@ -111,55 +107,89 @@ export default defineComponent({
       return false;
     };
 
-    const checkTicketLimit = async () => {
-      const fetchedUser = await getById(
-        'users',
-        user.value.id,
-        'tickets:ticket(*)'
-      );
-      const ticketLength = fetchedUser.tickets.length;
-      const ticketCount = parseInt(count.value);
+    const checkCountLimit = async () => {
+      // const fetchedUser = await getById(
+      //   'users',
+      //   user.value.id,
+      //   'tickets:ticket(*)'
+      // );
+      // const ticketLength = fetchedUser.tickets.length;
+      // const ticketCount = parseInt(count.value);
 
-      return ticketLength + ticketCount > 75;
+      // return ticketLength + ticketCount > 75;
+      return false;
     };
 
     const buy = async () => {
-      if (count.value == 0) {
+      const totalCount = counts.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+
+      if (totalCount == 0) {
         $q.notify({
           message: 'Ticket count cannot be zero',
           caption: 'You need buy at least one ticket',
           color: 'primary',
         });
-      } else if (count.value > 3) {
+      } else if (totalCount > 15) {
         $q.notify({
-          message: 'You can buy maximum of three tickets per request',
+          message: 'You can buy maximum of fifteen items per request',
           caption: 'Come back to this page to buy more',
+          color: 'primary',
+        });
+      } else if (totalCost.value > 100000) {
+        $q.notify({
+          message: 'You can spend maximum of 1lakh in preorder',
+          caption: 'Consider spending less',
           color: 'primary',
         });
       } else {
         isLoading.value = true;
         const isMember = await checkIfMember();
-        const isOverTicketLimit = await checkTicketLimit();
+        const isOverCountLimit = await checkCountLimit();
+
         if (isMember) {
           $q.notify({
             message: 'You are the member of this shop',
             caption: 'You cannot buy your own ticket',
             color: 'primary',
           });
-        } else if (isOverTicketLimit) {
+        } else if (isOverCountLimit) {
           $q.notify({
             message: 'Maximum number of tickets allowed is 75 tickets',
             caption: 'Contact the developer if you want more tickets',
             color: 'primary',
           });
         } else {
-          for (var i = 0; i < count.value; i++) {
-            await postPurchase();
+          const today = new Date();
+          const date = today.getDate();
+
+          const random_no = Math.floor(100000 + Math.random() * 900000);
+
+          const invoice = await post('invoice', {
+            invoice_no: random_no,
+            purchase_date: date,
+            total: totalCost.value,
+            buyer: user.value.id,
+            shop: props.shop.id,
+            sales_date: props.shop.sales_date,
+          });
+
+          const invoiceID = invoice[0].id;
+
+          for (var i = 0; i < props.products.length; i++) {
+            const product = props.products[i];
+
+            post('invoice_purchase', {
+              invoice: invoiceID,
+              product: product.id,
+              product_name: product.name,
+              quantity: counts[i],
+              price: product.price,
+            });
           }
 
           $q.notify({
-            message: `You have successfully bought ${count.value} tickets.`,
-            caption: 'Please pay the shop owner at school',
+            message: `You have successfully preorderd from ${props.shop.name}.`,
+            caption: 'Dont forget to redeem it on fun fair day',
             color: 'primary',
           });
 
@@ -176,6 +206,7 @@ export default defineComponent({
       isOpen,
       isLoading,
       count,
+      counts,
       totalCost,
       buy,
     };

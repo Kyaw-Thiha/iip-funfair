@@ -14,40 +14,25 @@
       </q-img>
     </q-card-section>
 
-    <q-card-actions align="around">
-      <q-btn
-        label="Learn More"
-        :size="screen.lt.md ? 'md' : 'lg'"
-        outline
-        color="primary"
-        :ripple="{ early: true }"
-        :to="{ name: 'product-detail', params: { id: id } }"
-      />
-      <q-btn
-        label="Buy Ticket"
-        :size="screen.lt.md ? 'md' : 'lg'"
-        color="primary"
-        :ripple="{ early: true }"
-        @click="isPurchaseDialogOpen = true"
-      />
+    <q-card-actions align="stretch">
+      <div class="text-center full-width">
+        <q-btn
+          class="full-width"
+          label="Learn More"
+          :size="screen.lt.md ? 'md' : 'lg'"
+          color="primary"
+          :ripple="{ early: true }"
+          :to="{ name: 'shop-detail', params: { id: shop } }"
+        />
+      </div>
     </q-card-actions>
   </q-card>
-  <purchase-dialog
-    :name="(name as string)"
-    :productID="id"
-    :price="price"
-    :name_abbreviation="(name_abbreviation as string)"
-    v-model="isPurchaseDialogOpen"
-    @bought="router.push({ name: 'purchased-tickets' })"
-  />
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
-
-import PurchaseDialog from 'src/components/PurchaseDialog.vue';
 
 export interface ProductInterface {
   id: string;
@@ -56,13 +41,15 @@ export interface ProductInterface {
   name_abbreviation: string;
   productType: string;
   price: number;
+  shop: string;
 }
 
 export default defineComponent({
   name: 'ProductCard',
-  components: { PurchaseDialog },
+  components: {},
   props: {
     id: String,
+    shop: String,
     image: String,
     name: String,
     name_abbreviation: String,

@@ -30,40 +30,77 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: false },
       },
       {
+        path: 'shops/:id',
+        name: 'shop-detail',
+        component: () => import('src/pages/ShopDetailPage.vue'),
+        meta: { requiresAuth: false },
+      },
+      {
         path: 'purchased-tickets',
         name: 'purchased-tickets',
         component: () => import('src/pages/PurchasedTicketsPage.vue'),
-        meta: { requiresAuth: false }, //Convert this to true
+        meta: { requiresAuth: true }, //Convert this to true
       },
       {
         path: 'my-shop',
         name: 'my-shop',
         component: () => import('src/pages/MyShopPage.vue'),
-        meta: { requiresAuth: false }, //Convert this to true
+        meta: { requiresAuth: true }, //Convert this to true
       },
       {
         path: 'edit-shop',
         name: 'create-shop',
         component: () => import('src/pages/EditShopPage.vue'),
-        meta: { requiresAuth: false }, //Convert this to true
+        meta: { requiresAuth: true }, //Convert this to true
       },
       {
         path: 'edit-shop/:id',
         name: 'edit-shop',
         component: () => import('src/pages/EditShopPage.vue'),
-        meta: { requiresAuth: false }, //Convert this to true
+        meta: { requiresAuth: true }, //Convert this to true
+      },
+      {
+        path: 'edit-product',
+        name: 'create-product',
+        component: () => import('src/pages/EditProductPage.vue'),
+        meta: { requiresAuth: true }, //Convert this to true
+      },
+      {
+        path: 'edit-product/:id',
+        name: 'edit-product',
+        component: () => import('src/pages/EditProductPage.vue'),
+        meta: { requiresAuth: true }, //Convert this to true
       },
       {
         path: 'sold-tickets',
         name: 'sold-tickets',
         component: () => import('src/pages/SoldTicketsPage.vue'),
-        meta: { requiresAuth: false }, //Convert this to true
+        meta: { requiresAuth: true }, //Convert this to true
       },
       {
         path: 'ticket-management',
         name: 'ticket-management',
         component: () => import('src/pages/TicketManagementPage.vue'),
-        meta: { requiresAuth: false }, //Convert this to false
+        meta: { requiresAuth: true }, //Convert this to false
+      },
+      //New routes
+      {
+        path: 'preorders',
+        name: 'preorders',
+        component: () => import('src/pages/PreorderPage.vue'),
+        meta: { requiresAuth: true }, //Convert this to false
+      },
+      {
+        path: 'invoice/:id',
+        name: 'invoice',
+        component: () => import('src/pages/InvoicePage.vue'),
+        meta: { requiresAuth: true }, //Convert this to false
+      },
+      {
+        path: 'shop-preorders',
+        name: 'shop-preorders',
+        component: () => import('src/pages/ShopPreorderPage.vue'),
+        meta: { requiresAuth: true }, //Convert this to false
       },
     ],
   },

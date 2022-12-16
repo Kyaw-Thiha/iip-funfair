@@ -65,11 +65,11 @@
               </h3>
               <div class="text-center q-mt-xl">
                 <q-btn
-                  label="Buy Ticket"
+                  label="Learn More"
                   size="lg"
                   color="primary"
                   :ripple="{ early: true }"
-                  :to="{ name: 'product-detail', params: { id: product.id } }"
+                  :to="{ name: 'shop-detail', params: { id: product.shop } }"
                 />
               </div>
             </div>
@@ -89,7 +89,7 @@
               size="lg"
               color="primary"
               :ripple="{ early: true }"
-              :to="{ name: 'product-detail', params: { id: product.id } }"
+              :to="{ name: 'shop-detail', params: { id: product.shop } }"
             />
           </div>
         </div>
@@ -107,6 +107,7 @@ export interface ProductCarouselInterface {
   image: string;
   name: string;
   product_type: string;
+  shop: string;
 }
 
 export default defineComponent({

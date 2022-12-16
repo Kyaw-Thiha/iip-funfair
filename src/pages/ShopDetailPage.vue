@@ -1,20 +1,20 @@
 <template>
   <!--Vue Starport-->
-  <div class="q-mb-xl">
+  <div v-if="Object.keys(shop).length > 0" class="q-mb-xl">
     <section
-      v-if="Object.keys(product).length > 0"
-      class="full-screen product"
+      v-if="Object.keys(shop).length > 0"
+      class="full-screen shop"
       :style="{ '--imageURL': `url('${shop.image}')` }"
     >
-      <div class="q-mx-md-xl q-mx-sm-lg q-mx-xs-sm">
+      <div class="shop-info q-mx-md-xl q-mx-sm-lg q-mx-xs-sm">
         <h2 class="text-primary">{{ shop.name }}</h2>
+        <h6 class="text-primary">{{ shop.sales_date }}</h6>
         <h5>{{ shop.description }}</h5>
-        <h4 class="q-mt-md-xl q-mt-sm-lg q-mt-xs-md">
-          Price: {{ product.price }}
-        </h4>
+        <p class="preorder_perks">{{ shop.preorder_perks }} for PreOrders</p>
+
         <q-btn
-          class="float-right q-my-md"
-          label="Buy Ticket"
+          class="q-mt-xl q-mb-md q-mb-md-none q-mb-lg-none float-right"
+          label="Preorder"
           size="xl"
           color="primary"
           :ripple="{ early: true }"
@@ -22,6 +22,89 @@
         />
       </div>
     </section>
+
+    <!-- Products -->
+    <section class="full-screen q-mt-xl">
+      <h3 class="text-center q-mb-xl">Products</h3>
+      <div class="row q-mx-lg q-mx-sm-sm">
+        <div
+          class="col-md-3 col-sm-4 col-xs-12 q-gutter-sm q-mb-xl"
+          v-for="(product, index) in products"
+          :key="index"
+        >
+          <div
+            class="product-card q-ma-md q-pa-md row items-center justify-evenly"
+          >
+            <q-avatar size="128px">
+              <img :src="product.image" :alt="product.name" />
+              /></q-avatar
+            >
+
+            <h4 class="q-mb-sm q-mt-lg q-mx-none col-12 text-center">
+              {{ product.name }}
+            </h4>
+
+            <h6
+              class="member-class q-py-xs q-px-sm q-mt-md-lg q-mt-sm-md q-mt-xs-sm inline-block"
+            >
+              {{ product.product_type }}
+            </h6>
+            <h6 class="col-12 text-center q-mt-md">
+              Price: {{ product.price }}Ks
+            </h6>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Media links -->
+    <section>
+      <div
+        v-if="
+          social.facebook != '' &&
+          social.instagram != '' &&
+          social.discord != ''
+        "
+        class="q-ml-lg"
+      >
+        <h4 class="q-mb-xl">Social Media Links</h4>
+        <q-btn
+          v-if="social.facebook != ''"
+          class="q-mb-xl"
+          label="Facebook"
+          size="xl"
+          color="primary"
+          :ripple="{ early: true }"
+          rounded
+          :href="social.facebook"
+          target="_blank"
+        />
+        <q-btn
+          v-if="social.instagram != ''"
+          class="q-mb-xl"
+          label="Facebook"
+          size="xl"
+          color="primary"
+          :ripple="{ early: true }"
+          rounded
+          :href="social.instagram"
+          target="_blank"
+        />
+        <q-btn
+          v-if="social.discord != ''"
+          class="q-mb-xl"
+          label="Facebook"
+          size="xl"
+          color="primary"
+          :ripple="{ early: true }"
+          rounded
+          :href="social.discord"
+          target="_blank"
+        />
+      </div>
+    </section>
+
+    <!-- Members -->
     <section v-if="members.length > 0" class="full-screen q-mt-xl">
       <h3 class="text-center q-mb-xl">Members</h3>
       <div class="row q-mx-lg q-mx-sm-sm">
@@ -59,20 +142,18 @@
       </div>
     </section>
 
-    <div v-if="!Object.keys(product).length > 0">
-      <div class="full-screen row items-center justify-evenly">
-        <q-spinner-hourglass color="primary" size="8em" />
-      </div>
-    </div>
-
     <purchase-dialog
-      :productID="route.params.id"
-      :name="product.name"
-      :price="product.price"
-      :name_abbreviation="product.name_abbreviation"
+      :shop="shop"
+      :products="products"
       v-model="isPurchaseDialogOpen"
-      @bought="router.push({ name: 'purchased-tickets' })"
+      @bought="router.push({ name: 'preorders' })"
     />
+  </div>
+
+  <div v-else>
+    <div class="full-screen row items-center justify-evenly">
+      <q-spinner-hourglass color="primary" size="8em" />
+    </div>
   </div>
 </template>
 
@@ -103,31 +184,43 @@ export default defineComponent({
 
     const { getById } = useApi();
     const fetchProduct = async () => {
-      const fetchedProduct = await getById('product', route.params.id);
-
-      //Fetching the shop
-      shop = await getById(
+      const fetchedShop = await getById(
         'shop',
-        fetchedProduct.shop,
-        '*, members:shop_member(*)'
+        route.params.id,
+        '*, members:shop_member(*),products:product(*),socials:social(*)'
       );
 
-      //Fetching the shop members
-      for (var i = 0; i < shop.members.length; i++) {
-        const fetchedUser = await getById('users', shop.members[i].user);
+      //Adding in members
+      for (const member of fetchedShop.members) {
+        //Fetching user
+        const fetchedUser = await getById('users', member.user);
+        member.name = fetchedUser.name;
+        member.class = fetchedUser.class;
+        member.image = fetchedUser.image;
 
-        members.push(fetchedUser);
         if (fetchedUser.image == undefined || fetchedUser.image == '') {
-          //Adding in the image path if image
-          members[
-            i
-          ].image = `https://avatars.dicebear.com/api/micah/${fetchedUser.id}.svg`;
+          //Adding in the image path if image is not present
+          member.image = `https://avatars.dicebear.com/api/micah/${fetchedUser.id}.svg`;
         }
+
+        members.push(member);
       }
 
-      //Adding the keys
-      Object.keys(fetchedProduct).forEach((key) => {
-        product[key] = fetchedProduct[key];
+      //Fetching the social media accounts
+      const fetchedSocial = fetchedShop.socials[0];
+
+      Object.keys(fetchedSocial).forEach((key) => {
+        social[key] = fetchedSocial[key];
+      });
+
+      //Adding in products
+      for (const product of fetchedShop.products) {
+        products.push(product);
+      }
+
+      //Adding the keys for shop
+      Object.keys(fetchedShop).forEach((key) => {
+        shop[key] = fetchedShop[key];
       });
     };
 
@@ -135,9 +228,10 @@ export default defineComponent({
       await fetchProduct();
     });
 
-    const product = reactive({});
     const shop = reactive({});
+    const products = reactive([]);
     const members = reactive([]);
+    const social = reactive({});
 
     // var product = reactive({
     //   name: 'Good Foods',
@@ -175,9 +269,10 @@ export default defineComponent({
     return {
       router,
       route,
-      product,
       shop,
+      products,
       members,
+      social,
       isPurchaseDialogOpen,
     };
   },
@@ -185,14 +280,35 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.product {
+.shop {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  .shop-info {
+    min-width: 400px;
+
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    padding: 10px 20px;
+
+    .preorder_perks {
+      margin-top: 20px;
+      padding: 3px 5px;
+      display: inline-block;
+      border-radius: 20px;
+      background-color: $primary;
+      color: white;
+    }
+
+    @media screen and (max-width: $breakpoint-xs-max) {
+      width: 250px;
+    }
+  }
 }
 
-.product::before {
+.shop::before {
   content: '';
   opacity: 0.6;
   //background-image: url('https://recipes.timesofindia.com/thumb/60256016.cms?width=1200&height=900');
@@ -208,8 +324,10 @@ export default defineComponent({
   z-index: -1;
 }
 
-.member-photo-container {
-  width: 100%;
+.product-card {
+  border-radius: 20px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 .member-class {
   border: 3px solid black;
