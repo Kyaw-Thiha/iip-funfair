@@ -96,12 +96,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/pages/InvoicePage.vue'),
         meta: { requiresAuth: true }, //Convert this to false
       },
-      {
-        path: 'shop-preorders',
-        name: 'shop-preorders',
-        component: () => import('src/pages/ShopPreorderPage.vue'),
-        meta: { requiresAuth: true }, //Convert this to false
-      },
     ],
   },
 
