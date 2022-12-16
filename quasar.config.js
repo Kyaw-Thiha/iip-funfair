@@ -64,14 +64,14 @@ module.exports = configure(function (/* ctx */) {
       // analyze: true,
       env: {
         //For production
-        //SUPABASE_URL: 'https://wryzopkfhzpsgyhhwqfo.supabase.co',
-        //SUPABASE_KEY:
-        //  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeXpvcGtmaHpwc2d5aGh3cWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzExMzQwMzQsImV4cCI6MTk4NjcxMDAzNH0.uOHKDY3T3lUvKNyFAkCpNcPgcFQLh3S2lgQiI13h6rM',
+        SUPABASE_URL: 'https://wryzopkfhzpsgyhhwqfo.supabase.co',
+        SUPABASE_KEY:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeXpvcGtmaHpwc2d5aGh3cWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzExMzQwMzQsImV4cCI6MTk4NjcxMDAzNH0.uOHKDY3T3lUvKNyFAkCpNcPgcFQLh3S2lgQiI13h6rM',
 
         //For development
-        SUPABASE_URL: 'https://apqjoqrlhscgrmhqoctv.supabase.co',
-        SUPABASE_KEY:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwcWpvcXJsaHNjZ3JtaHFvY3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzA5MTM4NjAsImV4cCI6MTk4NjQ4OTg2MH0.0ZjyCbMDe4YdCUpDwsqIEhctNrlFXH5PKEctmK5RhHE',
+        //SUPABASE_URL: 'https://apqjoqrlhscgrmhqoctv.supabase.co',
+        //SUPABASE_KEY:
+        //  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwcWpvcXJsaHNjZ3JtaHFvY3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzA5MTM4NjAsImV4cCI6MTk4NjQ4OTg2MH0.0ZjyCbMDe4YdCUpDwsqIEhctNrlFXH5PKEctmK5RhHE',
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
