@@ -235,7 +235,6 @@ export default defineComponent({
         product_type: product.product_type,
         price: product.price,
         image: public_url,
-        image_internal: fetchedImage,
       });
     };
 
