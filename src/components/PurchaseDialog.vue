@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed } from 'vue';
+import { defineComponent, ref, reactive, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import useApi from 'src/composables/useApi';
 import UseAuthUser from 'src/composables/useAuthUser';
@@ -89,6 +89,13 @@ export default defineComponent({
       }
 
       return total;
+    });
+
+    onMounted(async () => {
+      //Initialising the counts value
+      for (const product of props.products) {
+        counts.push(0);
+      }
     });
 
     const checkIfMember = async () => {
