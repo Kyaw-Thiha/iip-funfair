@@ -53,13 +53,13 @@ export default function useApi() {
    * de acordo com o id, também passado como parêmtro.
    */
   const filterAndCount = async (table, filter, fields = '*') => {
-    const { data, error } = await supabase
+    const { count, error } = await supabase
       .from(table)
-      .select(fields, { count: 'exact' })
+      .select(fields, { count: 'exact', head: true })
       .match(filter);
 
     if (error) throw error;
-    return data;
+    return count;
     /**
      * como a busca é por id, caso encontre, basta se retorne o primeiro elemento.
      */

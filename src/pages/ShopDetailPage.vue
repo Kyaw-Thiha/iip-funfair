@@ -57,15 +57,20 @@
       </div>
     </section>
 
+    <q-separator
+      class="q-mb-lg q-mb-sm-xl q-mt-xl q-mt-sm-lg q-mt-md-none"
+      inset
+    />
+
     <!-- Social Media links -->
     <section>
       <div
         v-if="
-          social.facebook != '' &&
-          social.instagram != '' &&
+          social.facebook != '' ||
+          social.instagram != '' ||
           social.discord != ''
         "
-        class="q-ml-lg"
+        class="social-container"
       >
         <h4 class="q-mb-xl">Social Media Links</h4>
         <q-btn
@@ -103,6 +108,11 @@
         />
       </div>
     </section>
+
+    <q-separator
+      class="q-mb-lg q-mb-sm-xl q-mt-xl q-mt-sm-lg q-mt-md-none"
+      inset
+    />
 
     <!-- Members -->
     <section v-if="members.length > 0" class="full-screen q-mt-xl">
@@ -329,6 +339,15 @@ export default defineComponent({
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
+
+.social-container {
+  margin: 50px 80px;
+
+  @media screen and (max-width: $breakpoint-xs-max) {
+    margin: 50px 30px;
+  }
+}
+
 .member-class {
   border: 3px solid black;
   border-radius: 20px;
