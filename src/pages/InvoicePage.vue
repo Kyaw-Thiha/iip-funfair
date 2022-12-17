@@ -4,7 +4,7 @@
     <section class="q-px-md-xl q-px-sm-md q-px-xs-sm">
       <h6>Shop: {{ invoice.shop_name }}</h6>
       <h6>Buyer: {{ invoice.buyer_name }} ({{ invoice.buyer_class }})</h6>
-      <h6>Purchase Date: {{ invoice.date }}th December</h6>
+      <h6>Purchase Date: {{ invoice.purchase_date }}th December</h6>
       <p class="q-mt-md">
         Sales Date: <b>{{ invoice.sales_date }}</b>
       </p>
@@ -44,12 +44,12 @@ export default defineComponent({
     const { getById } = useApi();
 
     const invoice = {
-      shop_name: 'Good Foods',
-      buyer_name: 'Kevin',
-      buyer_class: 'A Level',
-      invoice_id: '192381',
-      date: '19',
-      purchases: [{ description: 'product_name', quantity: 1, price: 3000 }],
+      shop_name: '',
+      buyer_name: '',
+      buyer_class: '',
+      invoice_id: '',
+      date: '',
+      purchases: [],
       total: 0,
     };
 

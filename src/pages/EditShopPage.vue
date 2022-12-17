@@ -35,7 +35,7 @@
         label="Image"
         hint="Main image of your shop. Used as hero in shop page"
         accept=".jpg,.png,.gif"
-        max-file-size="10000000"
+        max-file-size="100000000"
         clearable
         outlined
       />

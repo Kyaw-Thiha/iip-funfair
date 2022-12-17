@@ -107,14 +107,20 @@ export default defineComponent({
 
     onMounted(async () => {
       isLoading.value = true;
-      fetchPreorders();
+      await fetchPreorders();
       isLoading.value = false;
     });
 
     const fetchPreorders = async () => {
+      const fetchedUser = await getById(
+        'users',
+        user.value.id,
+        '*,shops:shop_member(*)'
+      );
+
       //Fetching preorders tickets
       const fetchedPreorders = await filterByProperties('invoice', {
-        buyer: user.value.id,
+        shop: fetchedUser.shops[0].shop,
       });
       fetchedPreorders.forEach(async (preorder) => {
         const shop = await getById('shop', preorder.shop, 'image,name');
@@ -131,9 +137,9 @@ export default defineComponent({
 
     return {
       router,
+      isLoading,
       screen,
       preorders,
-      isLoading,
     };
   },
 });

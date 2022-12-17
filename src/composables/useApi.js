@@ -49,6 +49,23 @@ export default function useApi() {
   };
 
   /**
+   * Retorna uma tupla da tabela passada como parâmetro
+   * de acordo com o id, também passado como parêmtro.
+   */
+  const filterAndCount = async (table, filter, fields = '*') => {
+    const { data, error } = await supabase
+      .from(table)
+      .select(fields, { count: 'exact' })
+      .match(filter);
+
+    if (error) throw error;
+    return data;
+    /**
+     * como a busca é por id, caso encontre, basta se retorne o primeiro elemento.
+     */
+  };
+
+  /**
    * Adiciona uma tupla populada na tabela passada como parâmetro
    * usando os dados do formulário passado como parâmetro.
    */
@@ -132,6 +149,7 @@ export default function useApi() {
     list,
     getById,
     filterByProperties,
+    filterAndCount,
     post,
     update,
     remove,

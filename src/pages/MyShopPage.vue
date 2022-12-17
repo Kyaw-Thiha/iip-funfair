@@ -163,6 +163,25 @@
       inset
     />
 
+    <section>
+      <div class="q-mx-xl">
+        <h3 class="text-center q-mb-xl">Preorders</h3>
+        <h5 class="">Current Preorders: {{ preordersCount }}</h5>
+
+        <div class="q-mt-lg text-center">
+          <q-btn
+            class="main-btn q-mt-xl"
+            label="See Preorders"
+            size="xl"
+            color="primary"
+            :ripple="{ early: true }"
+            rounded
+            :to="{ name: 'my-shop-preorders' }"
+          />
+        </div>
+      </div>
+    </section>
+
     <!-- <section>
       <h3 class="text-center q-mb-sm q-mb-sm-xl">Tickets</h3>
       <div class="q-mt-md text-center">
@@ -214,7 +233,7 @@ export default defineComponent({
   components: { InviteMemberDialog },
   setup() {
     const router = useRouter();
-    const { getById } = useApi();
+    const { getById, filterAndCount } = useApi();
     const { user } = useAuthUser();
 
     onMounted(async () => {
@@ -234,6 +253,7 @@ export default defineComponent({
       } else {
         shopID.value = fetchedUser.shops[0].shop;
         await fetchProduct(shopID.value);
+        await fetchPreordersCount();
       }
 
       isLoading.value = false;
@@ -276,12 +296,18 @@ export default defineComponent({
       }
     };
 
+    const fetchPreordersCount = async () => {
+      const count = await filterAndCount('invoice', { shop: shop.id }, 'id');
+      preordersCount.value = count.length;
+    };
+
     const shopID = ref('');
 
     const products = reactive([]);
     const shop = reactive({});
     const members = reactive([]);
     const social = reactive({});
+    const preordersCount = ref(0);
     const isLoading = ref(false);
     // const product = reactive({
     //   name: 'Good Foods',
@@ -322,6 +348,7 @@ export default defineComponent({
       products,
       members,
       social,
+      preordersCount,
       isLoading,
       inviteMemberDialog,
     };
