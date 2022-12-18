@@ -58,8 +58,9 @@
     </section>
     <section>
       <p class="text-center">
-        Made with ❤️ By Kevin @ Kyaw Thiha <span class="q-mx-xs"></span> &
-        <span class="q-mx-xs"></span> Min Thiha Chit
+        Website made with ❤️ By Kevin @ Kyaw Thiha
+        <span class="q-mx-xs"></span> & <span class="q-mx-xs"></span> Min Thiha
+        Chit
       </p>
     </section>
     <section v-if="isLoggedIn()">

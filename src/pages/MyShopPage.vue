@@ -395,7 +395,7 @@ export default defineComponent({
 
 .product::before {
   content: '';
-  opacity: 0.6;
+  opacity: 0.8;
   //background-image: url('https://recipes.timesofindia.com/thumb/60256016.cms?width=1200&height=900');
   background-image: var(--imageURL);
   background-position: center;
