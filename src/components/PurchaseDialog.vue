@@ -27,7 +27,7 @@
             <q-input
               class="q-mt-md"
               v-model="counts[index]"
-              label="Ticket Count"
+              label="Preorder Count"
               type="number"
               outlined
             />
@@ -138,8 +138,8 @@ export default defineComponent({
         });
       } else if (totalCount == 0) {
         $q.notify({
-          message: 'Ticket count cannot be zero',
-          caption: 'You need buy at least one ticket',
+          message: 'Pre-order count cannot be zero',
+          caption: 'You need buy at least one product',
           color: 'primary',
         });
       } else if (totalCount > 15) {
@@ -162,13 +162,13 @@ export default defineComponent({
         if (isMember) {
           $q.notify({
             message: 'You are the member of this shop',
-            caption: 'You cannot buy your own ticket',
+            caption: 'You cannot buy your own product',
             color: 'primary',
           });
         } else if (isOverCountLimit) {
           $q.notify({
-            message: 'Maximum number of tickets allowed is 75 tickets',
-            caption: 'Contact the developer if you want more tickets',
+            message: 'Maximum number of pre-orders allowed is 75 pre-orders',
+            caption: 'Contact the developer if you want more pre-orders',
             color: 'primary',
           });
         } else {
