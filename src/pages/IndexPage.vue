@@ -105,15 +105,6 @@ export default defineComponent({
     const { logout, isLoggedIn } = useAuthUser();
     const { list } = useApi();
 
-    const fetchProducts = async () => {
-      const fetchedProducts = await list('product');
-
-      fetchedProducts.forEach((product) => {
-        products.push(product);
-        selectedProducts.push(product);
-      });
-    };
-
     onMounted(async () => {
       await fetchProducts();
       getCarouselProducts();
@@ -121,6 +112,38 @@ export default defineComponent({
 
     var products = reactive(new Array<Product>());
     var selectedProducts = reactive(new Array<Product>());
+
+    const fetchProducts = async () => {
+      const fetchedProducts = await list('product');
+
+      const randomizedProducts = shuffle(fetchedProducts);
+
+      randomizedProducts.forEach((product) => {
+        products.push(product);
+        selectedProducts.push(product);
+      });
+    };
+
+    const shuffle = (array: Array<Product>) => {
+      //Randomize the given array
+      let currentIndex = array.length,
+        randomIndex;
+
+      // While there remain elements to shuffle.
+      while (currentIndex != 0) {
+        // Pick a remaining element.
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+          array[randomIndex],
+          array[currentIndex],
+        ];
+      }
+
+      return array;
+    };
 
     const carouselProducts = reactive(new Array<Product>());
     const getCarouselProducts = () => {
