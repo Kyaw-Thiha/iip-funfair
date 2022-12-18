@@ -75,7 +75,7 @@
         <h4 class="q-mb-xl">Social Media Links</h4>
         <q-btn
           v-if="social.facebook != ''"
-          class="q-mb-xl q-mx-sm"
+          class="q-mb-xl q-mr-md"
           label="Facebook"
           size="xl"
           color="primary"
@@ -86,7 +86,7 @@
         />
         <q-btn
           v-if="social.instagram != ''"
-          class="q-mb-xl q-mx-sm"
+          class="q-mb-xl q-mr-md"
           label="Instagram"
           size="xl"
           color="primary"
@@ -97,7 +97,7 @@
         />
         <q-btn
           v-if="social.discord != ''"
-          class="q-mb-xl q-mx-sm"
+          class="q-mb-xl q-mr-md"
           label="Discord"
           size="xl"
           color="primary"
