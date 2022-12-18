@@ -288,7 +288,6 @@ export default defineComponent({
       });
 
       //Creating social links
-      console.log(social);
       const fetchedSocial = await post('social', {
         shop: shopID,
         facebook: social.facebook,
