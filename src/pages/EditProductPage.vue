@@ -48,7 +48,7 @@
         v-model="imageFile"
         label="Image"
         accept=".jpg,.png,.gif"
-        max-file-size="5000000"
+        max-file-size="100000000"
         clearable
         outlined
       >
