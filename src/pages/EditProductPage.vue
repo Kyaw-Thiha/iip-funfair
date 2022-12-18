@@ -214,11 +214,22 @@ export default defineComponent({
 
       const shopID = fetchedUser.shops[0].shop;
 
+      //Creating the product
+      const fetchedProduct = await post('product', {
+        shop: shopID,
+        name: product.name,
+        product_type: product.product_type,
+        price: product.price,
+        image: '',
+      });
+
+      const productID = fetchedProduct[0].id;
+
       //Uploading the image
       const fetchedImage = await uploadImg(
         imageFile.value,
         'iip-funfair-shop',
-        `product/${shopID}`
+        `product/${productID}`
       );
 
       //Getting public url
@@ -228,12 +239,8 @@ export default defineComponent({
 
       const public_url = data.publicUrl;
 
-      //Creating the product
-      const fetchedProduct = await post('product', {
-        shop: shopID,
-        name: product.name,
-        product_type: product.product_type,
-        price: product.price,
+      await update('product', {
+        id: productID,
         image: public_url,
       });
     };
