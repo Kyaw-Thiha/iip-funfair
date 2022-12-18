@@ -127,9 +127,17 @@ export default defineComponent({
       return false;
     };
 
+    const hasNegativeCount = () => {
+      for (const count of counts) {
+        if (count < 0) {
+          return true;
+        }
+      }
+      return false;
+    };
+
     const buy = async () => {
       const totalCount = counts.reduce((a, b) => parseInt(a) + parseInt(b), 0);
-
       if (!isLoggedIn) {
         $q.notify({
           message: 'You are not logged in',
@@ -138,8 +146,14 @@ export default defineComponent({
         });
       } else if (totalCount == 0) {
         $q.notify({
-          message: 'Pre-order count cannot be zero',
+          message: 'Pre-order total count cannot be zero',
           caption: 'You need buy at least one product',
+          color: 'primary',
+        });
+      } else if (hasNegativeCount()) {
+        $q.notify({
+          message: 'Counts cannot be negative',
+          caption: 'Make sure the count of products is 0 or positive',
           color: 'primary',
         });
       } else if (totalCount > 15) {
