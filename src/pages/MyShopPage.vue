@@ -110,7 +110,7 @@
         <q-btn
           v-if="social.instagram != ''"
           class="q-mb-xl"
-          label="Facebook"
+          label="Instagram"
           size="xl"
           color="primary"
           :ripple="{ early: true }"
@@ -121,7 +121,7 @@
         <q-btn
           v-if="social.discord != ''"
           class="q-mb-xl"
-          label="Facebook"
+          label="Discord"
           size="xl"
           color="primary"
           :ripple="{ early: true }"
@@ -159,9 +159,21 @@
             >
               {{ member.class }}
             </h6>
+
+            <div class="col-12 text-center" v-if="index == 0">
+              <q-btn
+                class="q-mt-md"
+                label="Edit My Profile"
+                size="md"
+                color="primary"
+                :ripple="{ early: true }"
+                :to="{ name: 'edit-profile' }"
+              />
+            </div>
           </div>
         </div>
       </div>
+
       <div class="q-mt-lg text-center">
         <q-btn
           class="main-btn q-mt-xl"
@@ -398,12 +410,20 @@ export default defineComponent({
 }
 
 .shop-info {
-  min-width: 600px;
+  min-width: 750px;
   margin-bottom: 60px;
 
   border-radius: 20px;
   backdrop-filter: blur(8px);
   padding: 10px 20px;
+
+  @media screen and (max-width: $breakpoint-sm-max) {
+    min-width: 450px;
+  }
+
+  @media screen and (max-width: $breakpoint-xs-max) {
+    min-width: 350px;
+  }
 
   .preorder_perks {
     margin-top: 20px;
@@ -412,14 +432,6 @@ export default defineComponent({
     border-radius: 20px;
     background-color: $primary;
     color: white;
-  }
-
-  @media screen and (max-width: $breakpoint-sm-max) {
-    min-width: 400px;
-  }
-
-  @media screen and (max-width: $breakpoint-xs-max) {
-    min-width: 350px;
   }
 }
 

@@ -102,6 +102,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/pages/InvoicePage.vue'),
         meta: { requiresAuth: true }, //Convert this to false
       },
+      {
+        path: 'profile',
+        name: 'edit-profile',
+        component: () => import('src/pages/EditProfilePage.vue'),
+        meta: { requiresAuth: true }, //Convert this to false
+      },
     ],
   },
 

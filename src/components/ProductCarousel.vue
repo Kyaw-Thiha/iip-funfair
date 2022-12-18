@@ -85,7 +85,7 @@
           <h5 class="product-type q-mt-md">{{ product.product_type }}</h5>
           <div class="q-mt-xl text-center">
             <q-btn
-              label="Buy Ticket"
+              label="Learn More"
               size="lg"
               color="primary"
               :ripple="{ early: true }"
@@ -136,17 +136,20 @@ export default defineComponent({
 }
 
 .product-info {
+  min-width: 600px;
   border-radius: 20px;
   border: 3px;
   padding: 40px;
   background-color: $secondary;
 
   @media screen and (max-width: $breakpoint-sm-max) {
+    min-width: 500px;
     padding: 40px 80px;
     background-color: rgba($color: $secondary, $alpha: 0.8);
   }
 
   @media screen and (max-width: $breakpoint-xs-max) {
+    min-width: 350px;
     padding: 0 20px 20px;
     background-color: rgba($color: $secondary, $alpha: 0.8);
   }

@@ -297,11 +297,21 @@ export default defineComponent({
   justify-content: center;
 
   .shop-info {
-    min-width: 400px;
+    min-width: 750px;
 
     border-radius: 20px;
     backdrop-filter: blur(8px);
     padding: 10px 20px;
+
+    @media screen and (max-width: $breakpoint-xs-max) {
+      min-width: 500px;
+    }
+
+    @media screen and (max-width: $breakpoint-xs-max) {
+      margin: 30px 0;
+      min-width: 0px;
+      width: 350px;
+    }
 
     .preorder_perks {
       margin-top: 20px;
@@ -310,10 +320,6 @@ export default defineComponent({
       border-radius: 20px;
       background-color: $primary;
       color: white;
-    }
-
-    @media screen and (max-width: $breakpoint-xs-max) {
-      width: 250px;
     }
   }
 }

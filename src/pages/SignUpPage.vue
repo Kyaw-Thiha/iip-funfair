@@ -97,6 +97,25 @@ export default defineComponent({
 
     const { supabase } = useSupabase();
     const confirm = async () => {
+      if (
+        email.value != '' &&
+        password.value != '' &&
+        name.value != '' &&
+        className.value != ''
+      ) {
+        await signUp();
+      } else {
+        $q.notify({
+          message: 'Data is incomplete',
+          caption: 'Fill up all the fields in the form',
+          color: 'primary',
+        });
+      }
+
+      //router.push({ name: 'home' });
+    };
+
+    const signUp = async () => {
       const { user, error } = await supabase.auth.signUp({
         email: email.value,
         password: password.value,
@@ -123,8 +142,6 @@ export default defineComponent({
 
         router.push({ name: 'home' });
       }
-
-      //router.push({ name: 'home' });
     };
 
     return { email, password, name, className, classes, confirm, router };

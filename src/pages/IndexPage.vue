@@ -5,7 +5,11 @@
         <h1 class="text-primary q-mt-none q-mb-xl q-mb-sm-md q-mb-xs-sm">
           IIP Fun Fair
         </h1>
-        <h3 class="text-white q-mb-none q-mb-sm q-mt-md">coming Dec 21st</h3>
+        <h3
+          class="text-white q-mb-none q-mb-sm q-mt-md-xl q-mt-sm-md q-mt-xs-none"
+        >
+          coming Dec 20th + 21st
+        </h3>
       </div>
     </section>
 
@@ -51,6 +55,12 @@
           :price="product.price"
         />
       </div>
+    </section>
+    <section>
+      <p class="text-center">
+        Made with ❤️ By Kevin @ Kyaw Thiha <span class="q-mx-xs"></span> &
+        <span class="q-mx-xs"></span> Min Thiha Chit
+      </p>
     </section>
     <section v-if="isLoggedIn()">
       <q-btn
@@ -223,6 +233,10 @@ export default defineComponent({
 .hero-text {
   backdrop-filter: blur(8px);
   border-radius: 25px;
+
+  @media screen and (max-width: $breakpoint-xs-max) {
+    width: 360px;
+  }
 }
 
 .products-title {

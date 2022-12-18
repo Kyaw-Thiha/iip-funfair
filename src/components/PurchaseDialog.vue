@@ -72,7 +72,7 @@ export default defineComponent({
   setup(props, context) {
     const $q = useQuasar();
     const { post, filterByProperties, getById } = useApi();
-    const { user } = UseAuthUser();
+    const { user, isLoggedIn } = UseAuthUser();
 
     const isOpen = ref(false);
     const isLoading = ref(false);
@@ -130,7 +130,13 @@ export default defineComponent({
     const buy = async () => {
       const totalCount = counts.reduce((a, b) => parseInt(a) + parseInt(b), 0);
 
-      if (totalCount == 0) {
+      if (!isLoggedIn) {
+        $q.notify({
+          message: 'You are not logged in',
+          caption: 'Please create an account first',
+          color: 'primary',
+        });
+      } else if (totalCount == 0) {
         $q.notify({
           message: 'Ticket count cannot be zero',
           caption: 'You need buy at least one ticket',

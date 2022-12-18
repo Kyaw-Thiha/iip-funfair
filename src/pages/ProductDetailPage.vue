@@ -6,7 +6,7 @@
       class="full-screen product"
       :style="{ '--imageURL': `url('${shop.image}')` }"
     >
-      <div class="q-mx-md-xl q-mx-sm-lg q-mx-xs-sm">
+      <div class="product-info q-mx-md-xl q-mx-sm-lg q-mx-xs-sm">
         <h2 class="text-primary">{{ shop.name }}</h2>
         <h5>{{ shop.description }}</h5>
         <h4 class="q-mt-md-xl q-mt-sm-lg q-mt-xs-md">
@@ -190,6 +190,14 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+
+  .product-info {
+    min-width: 1500px;
+
+    @media screen and (max-width: $breakpoint-sm-max) {
+      min-width: 800px;
+    }
+  }
 }
 
 .product::before {
