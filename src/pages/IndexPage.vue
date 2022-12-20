@@ -18,7 +18,7 @@
     <section class="full-screen" v-if="carouselProducts.length > 0">
       <product-carousel :products="carouselProducts" />
     </section>
-    <section class="full-screen q-mb-xl" v-if="selectedProducts.length > 0">
+    <section class="full-screen q-mb-xl" v-if="products.length > 0">
       <h3 class="text-center products-title">Products</h3>
       <div class="row items-center justify-evenly">
         <q-input
@@ -156,37 +156,10 @@ export default defineComponent({
       });
     };
 
-    // const products = reactive([
-    //   {
-    //     id: '0',
-    //     name: 'Happy Meal',
-    //     image:
-    //       'https://www.allrecipes.com/thmb/QuBtUMOkpdH27PWiVzmyqupAik0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/228272_All-American-Burger-Dog_Christina_871688_original-1x1-1-8b15114941d54f2dbd3b6afbf033a9db.jpg',
-    //     productType: 'Hot Dog',
-    //     price: 5000,
-    //   },
-    //   {
-    //     id: '1',
-    //     name: 'Sand Witches',
-    //     image:
-    //       'https://recipes.timesofindia.com/thumb/60256016.cms?width=1200&height=900',
-    //     productType: 'Cheese Sandwich',
-    //     price: 10000,
-    //   },
-    //   {
-    //     id: '2',
-    //     name: 'Burley Burger',
-    //     image:
-    //       'https://www.aspicyperspective.com/wp-content/uploads/2020/07/best-hamburger-patties-1.jpg',
-    //     productType: 'Hamburger',
-    //     price: 5000,
-    //   },
-    // ]);
-
-    //var selectedProducts = reactive(JSON.parse(JSON.stringify(products)));
-
     const searchString = ref('');
     const search = () => {
+      //Initialise back the products based on initial data
+
       if (searchString.value != '') {
         //Filtering the products based on search string
         const filteredProducts = products.filter((product) => {
@@ -200,11 +173,13 @@ export default defineComponent({
         });
 
         //Removing all initial products
-        selectedProducts.forEach((item: Product) => selectedProducts.pop());
-        selectedProducts.pop(); //Removing the last remaining element
+
+        selectedProducts.length = 0;
 
         //Adding back the filtered products
-        filteredProducts.forEach((item) => selectedProducts.push(item));
+        filteredProducts.forEach((item) => {
+          selectedProducts.push(item);
+        });
       } else {
         //Removing all initial products
         selectedProducts.forEach((item: Product) => selectedProducts.pop());
