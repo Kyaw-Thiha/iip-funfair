@@ -96,39 +96,15 @@
         class="social-container"
       >
         <h4 class="q-mb-xl">Social Media Links</h4>
-        <q-btn
-          v-if="social.facebook != ''"
-          class="q-mb-xl"
-          label="Facebook"
-          size="xl"
-          color="primary"
-          :ripple="{ early: true }"
-          rounded
-          :href="social.facebook"
-          target="_blank"
-        />
-        <q-btn
-          v-if="social.instagram != ''"
-          class="q-mb-xl"
-          label="Instagram"
-          size="xl"
-          color="primary"
-          :ripple="{ early: true }"
-          rounded
-          :href="social.instagram"
-          target="_blank"
-        />
-        <q-btn
-          v-if="social.discord != ''"
-          class="q-mb-xl"
-          label="Discord"
-          size="xl"
-          color="primary"
-          :ripple="{ early: true }"
-          rounded
-          :href="social.discord"
-          target="_blank"
-        />
+        <h6 v-if="social.facebook != ''">
+          <b>Facebook:</b> {{ social.facebook }}
+        </h6>
+        <h6 v-if="social.instagram != ''">
+          <b>Instagram:</b> {{ social.instagram }}
+        </h6>
+        <h6 v-if="social.discord != ''">
+          <b>Discord:</b> {{ social.discord }}
+        </h6>
       </div>
     </section>
 
