@@ -138,7 +138,13 @@ export default defineComponent({
 
     const buy = async () => {
       const totalCount = counts.reduce((a, b) => parseInt(a) + parseInt(b), 0);
-      if (!isLoggedIn) {
+      if (true) {
+        $q.notify({
+          message: 'You can no longer preorder',
+          caption: 'The fun fair has already ended',
+          color: 'primary',
+        });
+      } else if (!isLoggedIn) {
         $q.notify({
           message: 'You are not logged in',
           caption: 'Please create an account first',

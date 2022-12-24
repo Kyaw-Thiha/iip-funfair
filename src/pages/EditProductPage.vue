@@ -188,6 +188,17 @@ export default defineComponent({
         product.price != 0 &&
         (imageFile.value != null || product.image != '')
       ) {
+        //Disabling creation/editting of your product as fun fair has already ended
+        if (true) {
+          $q.notify({
+            message: 'You can no longer create/edit your product',
+            caption: 'The fun fair has already ended',
+            color: 'primary',
+          });
+
+          return;
+        }
+
         if (id.value == '') {
           await createProduct();
         } else {

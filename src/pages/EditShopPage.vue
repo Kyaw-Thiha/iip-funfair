@@ -235,6 +235,17 @@ export default defineComponent({
         shop.sales_date != '' &&
         (shopImageFile.value != null || shop.image != '')
       ) {
+        //Disabling creation/editting of shop as fun fair has already ended
+        if (true) {
+          $q.notify({
+            message: 'You can no longer create/edit your shop',
+            caption: 'The fun fair has already ended',
+            color: 'primary',
+          });
+
+          return;
+        }
+
         if (id.value == '') {
           await createShop();
         } else {

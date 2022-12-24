@@ -116,6 +116,16 @@ export default defineComponent({
     };
 
     const signUp = async () => {
+      if (true) {
+        //Disabling signing up as fun fair has already ended
+        $q.notify({
+          message: 'You can no longer sign up',
+          caption: 'The fun fair has already ended',
+          color: 'primary',
+        });
+        return;
+      }
+
       const { user, error } = await supabase.auth.signUp({
         email: email.value,
         password: password.value,

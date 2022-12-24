@@ -127,6 +127,17 @@ export default defineComponent({
 
     const confirm = async () => {
       if (name.value != '' && className.value != '') {
+        //Disabling creation/editting of user as fun fair has already ended
+        if (true) {
+          $q.notify({
+            message: 'You can no longer edit your user profile.',
+            caption: 'The fun fair has already ended',
+            color: 'primary',
+          });
+
+          return;
+        }
+
         await patchUser();
 
         router.push({ name: 'my-shop' });
